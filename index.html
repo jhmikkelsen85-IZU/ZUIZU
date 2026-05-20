@@ -2,952 +2,1083 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="color-scheme" content="dark">
-<title>ZU-IZU Bush Pilot Programme</title>
+<title>ZU-IZU Bush Pilot Academy</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { color-scheme: dark only; font-size: 16px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark only;height:100%;overflow:hidden;font-size:18px}
+body{font-family:'Courier New',Courier,monospace;background:#080e14;color:#e8d8a0;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none}
 
-:root {
-  --navy:    #0d1b2a;
-  --navy2:   #1a2e40;
-  --navy3:   #243447;
-  --navy4:   #2e3f52;
-  --gold:    #c8960c;
-  --gold2:   #e6b020;
-  --gold3:   #f5d878;
-  --goldfaint: rgba(200,150,12,0.13);
-  --red:     #8b1a1a;
-  --red2:    #c0392b;
-  --redfaint: rgba(192,57,43,0.13);
-  --green2:  #2d7a4a;
-  --greenfaint: rgba(45,122,74,0.15);
-  --text:    #e8e0cc;
-  --text2:   #b0a888;
-  --text3:   #7a7060;
-  --border:  rgba(200,150,12,0.22);
-  --radius:  10px;
-
-  /* Fluid type scale */
-  --fs-xs:   clamp(0.7rem,  1.5vw, 0.85rem);
-  --fs-sm:   clamp(0.82rem, 1.8vw, 1rem);
-  --fs-base: clamp(0.92rem, 2vw,   1.1rem);
-  --fs-md:   clamp(1rem,    2.2vw, 1.2rem);
-  --fs-lg:   clamp(1.1rem,  2.5vw, 1.4rem);
-  --fs-xl:   clamp(1.3rem,  3vw,   1.7rem);
-  --fs-2xl:  clamp(1.5rem,  3.5vw, 2rem);
+:root{
+  --gold:#e8b84b;
+  --gold2:#f5d070;
+  --gold3:#c8960c;
+  --amber:#e8a020;
+  --red:#e84040;
+  --red2:#ff6060;
+  --green:#40c870;
+  --green2:#20a050;
+  --dim:#4a4030;
+  --navy:#080e14;
+  --navy2:#0f1a24;
+  --navy3:#162030;
+  --navy4:#1e2c3e;
+  --text:#e8d8a0;
+  --text2:#a89870;
+  --text3:#6a5840;
+  --border:rgba(232,184,75,0.2);
+  --r:8px;
 }
 
-body {
-  font-family: Georgia, 'Times New Roman', serif;
-  background: var(--navy);
-  color: var(--text);
-  min-height: 100vh;
+/* ── SCREEN MANAGER ─────────────────────────── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── MISSION SELECT SCREEN ──────────────────── */
+#screen-home{
+  background:var(--navy);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(232,184,75,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(232,100,20,0.03) 0%, transparent 60%);
+}
+.home-header{
+  padding:16px 24px 8px;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;
+}
+.home-title{font-size:clamp(16px,3vw,24px);color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+.home-sub{font-size:clamp(9px,1.5vw,12px);color:var(--text3);letter-spacing:2px;margin-top:2px}
+.home-stats{text-align:right;font-size:clamp(9px,1.4vw,11px);color:var(--text2)}
+.home-streak{color:var(--gold);font-size:clamp(14px,2vw,18px);display:block}
+
+.missions-grid{
+  flex:1;display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:1fr;
+  gap:12px;padding:16px 20px;
+  overflow:hidden;
+}
+.mission-card{
+  background:var(--navy2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:flex;flex-direction:column;
+  padding:16px;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.mission-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(232,184,75,0.05));
+  pointer-events:none;
+}
+.mission-card:active{transform:scale(0.97);background:var(--navy3)}
+.mission-card.locked{opacity:0.4;cursor:not-allowed}
+.mission-card.locked:active{transform:none}
+.mission-card.complete{border-color:var(--green2)}
+.mission-card.complete::after{
+  content:'✓';position:absolute;top:8px;right:10px;
+  color:var(--green);font-size:18px;
 }
 
-/* ── HEADER ────────────────────────────────────── */
-header {
-  background: linear-gradient(135deg, #080f18 0%, #1a2e40 100%);
-  border-bottom: 2px solid var(--gold);
-  padding: clamp(12px,2.5vw,20px) clamp(14px,3vw,28px);
-  position: sticky; top: 0; z-index: 300;
+.mission-level{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.mission-name{font-size:clamp(16px,2.2vw,20px);color:var(--gold2);line-height:1.3;margin-bottom:8px;font-weight:bold}
+.mission-desc{font-size:clamp(12px,1.6vw,14px);color:var(--text2);line-height:1.5;flex:1}
+.mission-count{margin-top:10px;font-size:10px;color:var(--text3)}
+.mission-bar{height:3px;background:var(--navy4);border-radius:2px;margin-top:6px;overflow:hidden}
+.mission-fill{height:100%;border-radius:2px;background:var(--gold3);transition:width 0.4s}
+
+.home-footer{
+  padding:10px 24px;border-top:1px solid var(--border);
+  display:flex;gap:12px;flex-shrink:0;
 }
-.hdr-sub {
-  font-size: var(--fs-xs);
-  letter-spacing: 3px; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 3px;
-  font-family: 'Courier New', monospace;
+.btn-secondary{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text2);border-radius:var(--r);
+  padding:8px 16px;font-family:inherit;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;
 }
-.hdr-title {
-  font-size: var(--fs-xl);
-  color: var(--text); font-weight: normal; letter-spacing: 0.5px;
+.btn-secondary:active{background:var(--navy3);color:var(--gold)}
+
+/* ── FLASHCARD SCREEN ───────────────────────── */
+#screen-cards{background:var(--navy)}
+
+.cards-header{
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;background:var(--navy2);
 }
-.hdr-reg {
-  font-size: var(--fs-xs);
-  color: var(--text2); margin-top: 3px;
-  font-family: 'Courier New', monospace;
+.btn-back{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text2);border-radius:6px;
+  padding:6px 12px;font-family:inherit;font-size:10px;
+  letter-spacing:2px;cursor:pointer;white-space:nowrap;
+}
+.btn-back:active{background:var(--navy3)}
+.cards-title{font-size:clamp(10px,1.8vw,14px);color:var(--gold);letter-spacing:2px;flex:1}
+.cards-progress-wrap{flex:1;max-width:200px}
+.cards-progress-bar{height:4px;background:var(--navy4);border-radius:2px;overflow:hidden}
+.cards-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.3s}
+.cards-counter{font-size:10px;color:var(--text3);margin-top:3px;text-align:right}
+.streak-badge{
+  background:var(--navy3);border:1px solid var(--amber);
+  border-radius:20px;padding:4px 10px;
+  font-size:10px;color:var(--amber);white-space:nowrap;
 }
 
-/* ── TABS ───────────────────────────────────────── */
-.tabs {
-  display: flex; background: #080f18;
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: clamp(62px,10vw,88px); z-index: 200;
-}
-.tab {
-  flex: 1; padding: clamp(9px,2vw,14px) 4px;
-  text-align: center;
-  font-size: var(--fs-xs);
-  letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--text3); cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  font-family: 'Courier New', monospace;
-}
-.tab.active { color: var(--gold2); border-bottom-color: var(--gold); background: var(--goldfaint); }
-
-/* ── PROGRESS ───────────────────────────────────── */
-.progress-wrap {
-  background: var(--navy2); padding: 8px clamp(14px,3vw,28px);
-  border-bottom: 1px solid var(--border);
-}
-.progress-label {
-  display: flex; justify-content: space-between;
-  font-size: var(--fs-xs); color: var(--text2); margin-bottom: 5px;
-  font-family: 'Courier New', monospace;
-}
-.progress-bar {
-  background: #080f18; border: 1px solid var(--border);
-  border-radius: 20px; height: 7px; overflow: hidden;
-}
-.progress-fill {
-  height: 100%; border-radius: 20px;
-  background: linear-gradient(90deg, var(--gold), var(--gold3));
-  transition: width 0.5s ease;
+.card-area{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:16px;gap:16px;overflow:hidden;
 }
 
-/* ── MODULE PICKER ──────────────────────────────── */
-.mod-picker {
-  display: flex; overflow-x: auto; gap: 7px;
-  padding: 10px clamp(14px,3vw,28px);
-  background: var(--navy2); border-bottom: 1px solid var(--border);
-  scrollbar-width: none;
+/* Main flashcard */
+.flashcard{
+  flex:1;max-width:600px;height:100%;max-height:340px;
+  position:relative;cursor:pointer;
 }
-.mod-picker::-webkit-scrollbar { display: none; }
-.mod-pill {
-  flex-shrink: 0; padding: clamp(6px,1.2vw,9px) clamp(12px,2vw,18px);
-  border-radius: 20px; font-size: var(--fs-sm);
-  cursor: pointer; border: 1px solid var(--border);
-  background: var(--navy3); color: var(--text2);
-  transition: all 0.2s; font-family: 'Courier New', monospace;
-  position: relative; white-space: nowrap;
+.card-inner{
+  position:absolute;inset:0;
+  transition:transform 0.5s;
+  transform-style:preserve-3d;
 }
-.mod-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); font-weight: bold; }
-.mod-pill.done::after {
-  content: '✓'; position: absolute; top: -5px; right: -5px;
-  background: var(--green2); color: white; border-radius: 50%;
-  width: 16px; height: 16px; font-size: 10px;
-  display: flex; align-items: center; justify-content: center;
+.flashcard.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:16px;display:flex;flex-direction:column;
+  border:1px solid var(--border);overflow:hidden;
+}
+.card-front{background:var(--navy2)}
+.card-back{background:var(--navy3);transform:rotateY(180deg)}
+
+.card-tag{
+  padding:10px 16px 6px;
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.card-type-badge{
+  font-size:8px;letter-spacing:1px;padding:2px 8px;
+  border-radius:10px;
+}
+.type-speed{background:rgba(232,184,75,0.15);color:var(--gold)}
+.type-limit{background:rgba(232,64,64,0.15);color:var(--red2)}
+.type-proc{background:rgba(64,200,112,0.15);color:var(--green)}
+.type-sys{background:rgba(100,150,232,0.15);color:#8ab4f8}
+.type-scenario{background:rgba(200,100,232,0.15);color:#c87ae8}
+
+.card-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.card-question{font-size:clamp(15px,2.5vw,20px);color:var(--text2);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase}
+.card-value{font-size:clamp(32px,7vw,58px);color:var(--gold2);font-weight:bold;letter-spacing:2px;line-height:1.1}
+.card-value.red{color:var(--red2)}
+.card-value.green{color:var(--green)}
+.card-value.small{font-size:clamp(20px,3.5vw,32px)}
+.card-value.xsmall{font-size:clamp(16px,2.5vw,22px)}
+.card-hint{font-size:clamp(12px,1.8vw,14px);color:var(--text3);margin-top:8px;letter-spacing:1px}
+.card-tap{font-size:9px;letter-spacing:3px;color:var(--text3);margin-top:auto;padding-top:8px;opacity:0.6}
+
+.card-answer-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.card-answer-main{font-size:clamp(26px,5.5vw,46px);color:var(--gold2);font-weight:bold;line-height:1.2}
+.card-answer-main.red{color:var(--red2)}
+.card-answer-sub{font-size:clamp(13px,2vw,16px);color:var(--text2);margin-top:6px;line-height:1.5}
+.card-poh{font-size:9px;color:var(--text3);margin-top:10px;letter-spacing:1px}
+
+/* Image card */
+.card-img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.card-img-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(8,14,20,0.95));
+  padding:16px;border-radius:0 0 16px 16px;
 }
 
-/* ── LAYOUT ─────────────────────────────────────── */
-.tab-content { display: none; padding: clamp(14px,3vw,28px) clamp(14px,3vw,28px) 130px; }
-.tab-content.active { display: block; }
-
-/* iPad two-column layout for plan tab */
-@media (min-width: 768px) {
-  .plan-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .plan-grid .full-width { grid-column: 1 / -1; }
+/* Timer bar */
+.timer-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--gold);border-radius:0 0 16px 16px;
+  transform-origin:left;
+  transition:transform linear,background linear;
 }
 
-/* ── MODULE HEADER ──────────────────────────────── */
-.mod-phase {
-  font-size: var(--fs-xs); letter-spacing: 3px; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 5px;
-  font-family: 'Courier New', monospace;
+/* Right panel */
+.card-side-panel{
+  width:180px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:10px;height:100%;max-height:340px;
 }
-.mod-title { font-size: var(--fs-2xl); color: var(--text); line-height: 1.25; margin-bottom: 5px; }
-.mod-subtitle { font-size: var(--fs-sm); color: var(--text2); margin-bottom: 18px; line-height: 1.6; }
+.side-card{
+  background:var(--navy2);border:1px solid var(--border);
+  border-radius:10px;padding:12px;
+  font-size:10px;
+}
+.side-label{color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-size:9px}
+.side-stat{color:var(--gold);font-size:20px;font-weight:bold}
+.side-sub{color:var(--text2);font-size:9px;margin-top:2px}
 
-/* ── COMPLETE BTN ───────────────────────────────── */
-.complete-btn {
-  width: 100%; padding: clamp(12px,2vw,16px);
-  border-radius: var(--radius); border: 1px solid var(--gold);
-  font-size: var(--fs-sm); cursor: pointer;
-  font-family: Georgia, serif; margin-bottom: 14px;
-  transition: all 0.2s; background: transparent; color: var(--gold);
-  letter-spacing: 1.5px; text-transform: uppercase;
+.weak-list{display:flex;flex-direction:column;gap:4px}
+.weak-item{
+  background:var(--navy3);border-radius:5px;padding:5px 8px;
+  font-size:9px;color:var(--red2);display:flex;align-items:center;gap:6px;
 }
-.complete-btn.done { background: var(--gold); color: var(--navy); font-weight: bold; }
+.weak-item::before{content:'⚠';font-size:10px}
 
-/* ── SECTIONS ───────────────────────────────────── */
-.section { margin-bottom: 12px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
-.section-hdr {
-  padding: clamp(11px,2vw,15px) clamp(14px,2.5vw,20px);
-  font-size: var(--fs-xs); letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-  background: var(--navy2); color: var(--gold);
-  font-family: 'Courier New', monospace; user-select: none;
+/* Confidence buttons */
+.conf-buttons{
+  display:flex;gap:8px;padding:10px 16px;
+  flex-shrink:0;border-top:1px solid var(--border);
+  background:var(--navy2);
 }
-.section-body {
-  padding: clamp(14px,2.5vw,22px);
-  background: var(--navy3); border-top: 1px solid var(--border);
+.conf-btn{
+  flex:1;padding:10px 8px;border-radius:var(--r);
+  font-family:inherit;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:1px solid;
+  transition:all 0.15s;
 }
-.section-body.hidden { display: none; }
+.conf-btn:active{transform:scale(0.96)}
+.conf-know{background:rgba(40,160,80,0.15);border-color:var(--green2);color:var(--green)}
+.conf-know:active{background:rgba(40,160,80,0.35)}
+.conf-unsure{background:rgba(232,160,32,0.15);border-color:var(--amber);color:var(--amber)}
+.conf-unsure:active{background:rgba(232,160,32,0.3)}
+.conf-missed{background:rgba(232,64,64,0.15);border-color:var(--red);color:var(--red2)}
+.conf-missed:active{background:rgba(232,64,64,0.3)}
 
-.obj-text { font-size: var(--fs-base); line-height: 1.75; color: var(--text); }
-.topic-item { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-top: 8px; flex-shrink: 0; }
-.topic-text { font-size: var(--fs-sm); color: var(--text); line-height: 1.65; }
-.activity-text { font-size: var(--fs-sm); color: var(--text); line-height: 1.75; }
+/* Result overlay */
+.result-overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;
+  transition:opacity 0.3s;border-radius:16px;
+}
+.result-overlay.show{opacity:1}
+.result-overlay.correct{background:rgba(40,160,80,0.25)}
+.result-overlay.wrong{background:rgba(232,64,64,0.2)}
+.result-icon{font-size:80px}
 
-.scenario-box {
-  background: var(--redfaint); border: 1px solid var(--red2);
-  border-radius: var(--radius); padding: clamp(12px,2vw,18px); margin-bottom: 12px;
+/* ── COMPLETE SCREEN ────────────────────────── */
+#screen-complete{
+  background:var(--navy);
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;
 }
-.scenario-label {
-  font-size: var(--fs-xs); letter-spacing: 2px; text-transform: uppercase;
-  color: var(--red2); margin-bottom: 8px; font-family: 'Courier New', monospace;
+#screen-complete.active{display:flex}
+.complete-icon{font-size:80px;margin-bottom:16px}
+.complete-title{font-size:clamp(20px,4vw,32px);color:var(--gold2);letter-spacing:3px;margin-bottom:8px}
+.complete-sub{font-size:clamp(11px,2vw,15px);color:var(--text2);margin-bottom:24px}
+.complete-score{font-size:clamp(36px,7vw,60px);color:var(--gold);font-weight:bold;margin-bottom:4px}
+.complete-score-label{font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:24px}
+.btn-primary{
+  background:var(--gold3);color:var(--navy);border:none;
+  border-radius:var(--r);padding:12px 32px;
+  font-family:inherit;font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;cursor:pointer;font-weight:bold;
+  transition:all 0.2s;margin:4px;
 }
-.scenario-text { font-size: var(--fs-sm); color: var(--text); line-height: 1.7; font-style: italic; }
+.btn-primary:active{transform:scale(0.97);background:var(--gold)}
 
-.review-box {
-  background: var(--goldfaint); border: 1px solid var(--gold);
-  border-radius: var(--radius); padding: clamp(12px,2vw,18px);
+/* ── MODULES SCREEN ─────────────────────────── */
+#screen-modules{background:var(--navy);overflow-y:auto}
+.modules-header{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--navy2);z-index:10;
+  flex-shrink:0;
 }
-.review-label {
-  font-size: var(--fs-xs); letter-spacing: 2px; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 8px; font-family: 'Courier New', monospace;
+.mod-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;padding:16px;
 }
-.review-text { font-size: var(--fs-sm); color: var(--text); line-height: 1.7; font-style: italic; }
+.mod-card{
+  background:var(--navy2);border:1px solid var(--border);
+  border-radius:10px;padding:14px;cursor:pointer;
+  transition:all 0.2s;
+}
+.mod-card:active{background:var(--navy3)}
+.mod-card-level{font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px}
+.mod-card-title{font-size:clamp(14px,2.2vw,17px);color:var(--gold);margin-bottom:6px;line-height:1.3}
+.mod-card-desc{font-size:clamp(12px,1.6vw,14px);color:var(--text2);line-height:1.5}
 
-/* ── QUIZ ───────────────────────────────────────── */
-.quiz-wrap { max-width: 720px; }
-.quiz-q-num {
-  font-size: var(--fs-xs); letter-spacing: 2px; text-transform: uppercase;
-  color: var(--text3); margin-bottom: 8px; font-family: 'Courier New', monospace;
+/* ── MODULE DETAIL ──────────────────────────── */
+#screen-moddetail{background:var(--navy);overflow-y:auto}
+.moddetail-header{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--navy2);z-index:10;
 }
-.quiz-q { font-size: var(--fs-md); color: var(--text); margin-bottom: 16px; line-height: 1.65; font-weight: normal; }
-.quiz-scenario {
-  font-size: var(--fs-sm); color: var(--gold2); margin-bottom: 14px; line-height: 1.65;
-  font-style: italic; padding: clamp(10px,2vw,16px);
-  background: var(--goldfaint); border-left: 3px solid var(--gold);
-  border-radius: 0 var(--radius) var(--radius) 0;
+.moddetail-content{padding:16px 20px 80px;max-width:800px;margin:0 auto}
+.mod-section{margin-bottom:20px}
+.mod-section-title{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid var(--border);
+  padding-bottom:6px;margin-bottom:12px;
 }
-.quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+.mod-topic{
+  display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;
+}
+.mod-bullet{color:var(--gold);flex-shrink:0;margin-top:2px}
+.mod-topic-text{font-size:clamp(11px,1.8vw,14px);color:var(--text);line-height:1.6}
+.mod-scenario{
+  background:rgba(232,64,64,0.08);border:1px solid rgba(232,64,64,0.3);
+  border-radius:var(--r);padding:14px;margin-bottom:12px;
+}
+.mod-scenario-label{font-size:9px;letter-spacing:2px;color:var(--red2);margin-bottom:6px}
+.mod-scenario-text{font-size:clamp(11px,1.8vw,14px);color:var(--text);line-height:1.6;font-style:italic}
 
-@media (min-width: 768px) {
-  .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* ── PHOTO CARD ─────────────────────────────── */
+.photo-card{
+  position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);
 }
+.photo-card img{width:100%;height:100%;object-fit:cover}
+.photo-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(8,14,20,0.95));
+  padding:20px 16px 12px;
+}
+.photo-label-title{font-size:clamp(14px,2.5vw,20px);color:var(--gold2);font-weight:bold;letter-spacing:1px}
+.photo-label-sub{font-size:clamp(10px,1.6vw,13px);color:var(--text2);margin-top:3px;line-height:1.4}
+.photo-label-tag{font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px}
 
-.quiz-opt {
-  display: block; width: 100%; text-align: left;
-  padding: clamp(12px,2vw,16px) clamp(14px,2.5vw,20px);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--navy2); font-size: var(--fs-sm);
-  cursor: pointer; font-family: Georgia, serif; transition: all 0.2s;
-  color: var(--text); line-height: 1.5;
-}
-.quiz-opt:disabled { cursor: default; }
-.quiz-opt.correct { background: var(--greenfaint); border-color: var(--green2); color: #a8e8b8; }
-.quiz-opt.wrong   { background: var(--redfaint);   border-color: var(--red2);   color: #e8a8a8; }
-.quiz-opt.reveal  { background: var(--greenfaint); border-color: var(--green2); opacity: 0.55; }
+/* Pulse animation for correct */
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(40,200,80,0.6)}100%{box-shadow:0 0 0 20px rgba(40,200,80,0)}}
+@keyframes pulse-red{0%{box-shadow:0 0 0 0 rgba(232,64,64,0.6)}100%{box-shadow:0 0 0 20px rgba(232,64,64,0)}}
+@keyframes pulse-amber{0%{box-shadow:0 0 0 0 rgba(232,160,32,0.6)}100%{box-shadow:0 0 0 16px rgba(232,160,32,0)}}
+.pulse-green{animation:pulse-green 0.4s ease-out}
+.pulse-red{animation:pulse-red 0.4s ease-out}
+.pulse-amber{animation:pulse-amber 0.4s ease-out}
 
-.quiz-exp {
-  background: var(--navy); border-left: 3px solid var(--gold);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  padding: clamp(12px,2vw,18px); margin-top: 8px;
-  font-size: var(--fs-sm); line-height: 1.75; color: var(--text2);
-}
-.quiz-poh {
-  font-size: var(--fs-xs); color: var(--gold); margin-top: 8px;
-  font-family: 'Courier New', monospace;
-}
-.quiz-nav {
-  display: flex; justify-content: space-between; align-items: center; margin-top: 20px;
-}
-.quiz-nav button {
-  background: var(--navy2); color: var(--gold); border: 1px solid var(--gold);
-  border-radius: var(--radius); padding: clamp(10px,1.8vw,14px) clamp(18px,3vw,28px);
-  font-size: var(--fs-sm); cursor: pointer; font-family: 'Courier New', monospace; transition: all 0.2s;
-}
-.quiz-nav button:hover { background: var(--gold); color: var(--navy); }
-.quiz-nav button:disabled { background: var(--navy); color: var(--text3); border-color: var(--border); cursor: not-allowed; }
-.quiz-nav .score-label { font-size: var(--fs-sm); color: var(--text2); font-family: 'Courier New', monospace; }
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn 0.3s ease-out}
 
-.quiz-score { text-align: center; padding: clamp(24px,5vw,50px) 20px; }
-.quiz-score .score-num { font-size: clamp(3rem,8vw,5rem); color: var(--gold2); font-family: 'Courier New', monospace; }
-.quiz-score p { font-size: var(--fs-md); color: var(--text2); margin-top: 12px; line-height: 1.65; }
-.quiz-restart {
-  margin-top: 18px; background: var(--gold); color: var(--navy);
-  border: none; border-radius: var(--radius);
-  padding: clamp(11px,2vw,15px) clamp(24px,4vw,36px);
-  font-size: var(--fs-md); cursor: pointer; font-family: Georgia, serif; font-weight: bold;
-}
-.finish-btn {
-  display: block; width: 100%; margin-top: 14px;
-  background: var(--gold); color: var(--navy); border: none;
-  border-radius: var(--radius); padding: clamp(12px,2vw,16px);
-  font-size: var(--fs-md); cursor: pointer; font-family: Georgia, serif; font-weight: bold;
-}
-
-/* ── CHEAT SHEET ────────────────────────────────── */
-@media (min-width: 768px) {
-  .cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .cs-grid .cs-full { grid-column: 1 / -1; }
-}
-
-.cs-section { margin-bottom: 14px; }
-.cs-title {
-  font-size: var(--fs-xs); letter-spacing: 2px; text-transform: uppercase;
-  font-family: 'Courier New', monospace; padding: clamp(9px,1.5vw,13px) clamp(14px,2.5vw,20px);
-  background: var(--navy2); color: var(--gold);
-  border-radius: var(--radius) var(--radius) 0 0;
-  border: 1px solid var(--border); border-bottom: none;
-}
-.cs-body {
-  background: var(--navy3); border: 1px solid var(--border);
-  border-radius: 0 0 var(--radius) var(--radius);
-  padding: clamp(12px,2vw,18px);
-}
-.cs-row {
-  display: flex; gap: 12px; margin-bottom: 9px;
-  font-size: var(--fs-sm); line-height: 1.55;
-  font-family: 'Courier New', monospace;
-}
-.cs-key { color: var(--gold); min-width: clamp(90px,15vw,130px); flex-shrink: 0; font-weight: bold; }
-.cs-val { color: var(--text); }
-.cs-warn { color: #e88080; }
-.cs-green { color: #7dca9a; }
-
-/* ── BOTTOM NAV ─────────────────────────────────── */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(135deg, #060d14 0%, #0d1b2a 100%);
-  display: flex; justify-content: space-between; align-items: center;
-  padding: clamp(10px,2vw,16px) clamp(14px,3vw,28px);
-  border-top: 1px solid var(--gold); z-index: 100;
-}
-.bottom-nav button {
-  background: var(--navy2); color: var(--gold); border: 1px solid var(--gold);
-  border-radius: var(--radius);
-  padding: clamp(10px,1.8vw,14px) clamp(18px,3vw,28px);
-  font-size: var(--fs-sm); cursor: pointer;
-  font-family: 'Courier New', monospace; transition: all 0.2s;
-}
-.bottom-nav button:hover { background: var(--gold); color: var(--navy); }
-.bottom-nav button:disabled { background: var(--navy); color: var(--text3); border-color: var(--border); cursor: not-allowed; }
-.bottom-nav .counter { font-size: var(--fs-sm); color: var(--text2); font-family: 'Courier New', monospace; }
-
-footer {
-  padding: 14px clamp(14px,3vw,28px) 110px;
-  font-size: var(--fs-xs); color: var(--text3); text-align: center;
-  line-height: 1.7; font-family: 'Courier New', monospace;
-  border-top: 1px solid var(--border);
+/* Responsive for smaller devices */
+@media(max-width:600px){
+  .missions-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
+  .card-side-panel{display:none}
+  .mod-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="hdr-sub">ZU-IZU · Bushbaby Xplorer · KFA 912 ULS-ST · 135HP · Tailwheel</div>
-  <div class="hdr-title">Bush Pilot Training Programme</div>
-  <div class="hdr-reg">SN: 025-D-23 EXUL · FAHT Hoedspruit · Maseke Game Reserve</div>
-</header>
-
-<div class="tabs">
-  <div class="tab active" onclick="showTab('plan')">📋 Plan</div>
-  <div class="tab" onclick="showTab('quiz')">🎯 Quiz</div>
-  <div class="tab" onclick="showTab('cheatsheet')">⚡ Quick Ref</div>
-</div>
-
-<div class="progress-wrap">
-  <div class="progress-label">
-    <span id="phase-label">Phase 2 — Mobile Modules</span>
-    <span id="mod-counter">Module A · 0 completed</span>
+<!-- ── HOME / MISSION SELECT ─────────────────────── -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div>
+      <div class="home-title">ZU-IZU · BUSH PILOT ACADEMY</div>
+      <div class="home-sub">FAHT HOEDSPRUIT · MASEKE GAME RESERVE · KFA 912 ULS-ST 135HP</div>
+    </div>
+    <div class="home-stats">
+      <span class="home-streak" id="streak-display">🔥 0</span>
+      <span id="total-display">0 cards mastered</span>
+    </div>
   </div>
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:8%"></div></div>
+
+  <div class="missions-grid">
+    <!-- Level 1 -->
+    <div class="mission-card" id="mission-0" onclick="startMission(0)">
+      <div class="mission-level">Level 1 · Survival Memory</div>
+      <div class="mission-name">CORE LIMITS</div>
+      <div class="mission-desc">VNE · VNO · VA · VS · VX · VY · best glide · mag drop · fuel warning actions. The numbers that keep you alive.</div>
+      <div class="mission-count" id="m0-count">0 / 20 mastered</div>
+      <div class="mission-bar"><div class="mission-fill" id="m0-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 2 -->
+    <div class="mission-card locked" id="mission-1" onclick="startMission(1)">
+      <div class="mission-level">Level 2 · Procedures</div>
+      <div class="mission-name">FLOWS &amp; CHECKS</div>
+      <div class="mission-desc">Run-up · before T/O · after T/O · downwind · HASEL · shutdown. Every mnemonic cold.</div>
+      <div class="mission-count" id="m1-count">🔒 Complete Level 1 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m1-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 3 -->
+    <div class="mission-card locked" id="mission-2" onclick="startMission(2)">
+      <div class="mission-level">Level 3 · Systems</div>
+      <div class="mission-name">AIRCRAFT SYSTEMS</div>
+      <div class="mission-desc">Fuel logic · header tank · trim behaviour · flaperon · engine limits. Understand why.</div>
+      <div class="mission-count" id="m2-count">🔒 Complete Level 2 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m2-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 4 -->
+    <div class="mission-card locked" id="mission-3" onclick="startMission(3)">
+      <div class="mission-level">Level 4 · Bush Mastery</div>
+      <div class="mission-name">MASEKE OPS</div>
+      <div class="mission-desc">DA effects · Maseke strip · power lines · crosswind · energy management · scenario drills. Applied flying.</div>
+      <div class="mission-count" id="m3-count">🔒 Complete Level 3 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m3-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="home-footer">
+    <button class="btn-secondary" onclick="showModules()">📖 Deep Read Modules</button>
+    <button class="btn-secondary" onclick="startWeakDrill()">⚠ Drill Weak Areas</button>
+    <button class="btn-secondary" onclick="resetProgress()" style="margin-left:auto">Reset</button>
+  </div>
 </div>
 
-<div class="mod-picker" id="mod-picker"></div>
+<!-- ── FLASHCARD SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-cards">
+  <div class="cards-header">
+    <button class="btn-back" onclick="goHome()">← MISSIONS</button>
+    <div class="cards-title" id="cards-title">CORE LIMITS</div>
+    <div class="cards-progress-wrap">
+      <div class="cards-progress-bar"><div class="cards-progress-fill" id="cards-progress"></div></div>
+      <div class="cards-counter" id="cards-counter">1 / 20</div>
+    </div>
+    <div class="streak-badge" id="streak-badge">🔥 0 streak</div>
+  </div>
 
-<div class="tab-content active" id="tab-plan"><div id="plan-content"></div></div>
-<div class="tab-content" id="tab-quiz"><div id="quiz-content"></div></div>
-<div class="tab-content" id="tab-cheatsheet"><div id="cheatsheet-content"></div></div>
+  <div class="card-area">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-inner" id="card-inner">
+        <div class="card-face card-front" id="card-front">
+          <div class="card-tag">
+            <span id="card-category">SPEED</span>
+            <span class="card-type-badge type-speed" id="card-type-badge">SPEED</span>
+          </div>
+          <div class="card-body">
+            <div class="card-question" id="card-question">VNE</div>
+            <div class="card-value" id="card-front-value">?</div>
+            <div class="card-hint" id="card-hint"></div>
+            <div class="card-tap">TAP TO REVEAL</div>
+          </div>
+          <div class="timer-bar" id="timer-bar"></div>
+          <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+        </div>
+        <div class="card-face card-back" id="card-back">
+          <div class="card-tag">
+            <span id="card-category-back">SPEED</span>
+            <span class="card-type-badge type-speed" id="card-type-badge-back">SPEED</span>
+          </div>
+          <div class="card-body">
+            <div class="card-answer-label">ANSWER</div>
+            <div class="card-answer-main" id="card-answer-main">113 KTS</div>
+            <div class="card-answer-sub" id="card-answer-sub">Never Exceed Speed</div>
+            <div class="card-poh" id="card-poh">POH §2.2</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="bottom-nav">
-  <button id="btn-prev" onclick="go(-1)">← Prev</button>
-  <span class="counter" id="nav-counter">1 / 12</span>
-  <button id="btn-next" onclick="go(1)">Next →</button>
+    <div class="card-side-panel">
+      <div class="side-card">
+        <div class="side-label">Session</div>
+        <div class="side-stat" id="side-correct">0</div>
+        <div class="side-sub">correct this session</div>
+      </div>
+      <div class="side-card">
+        <div class="side-label">Streak</div>
+        <div class="side-stat" id="side-streak">0</div>
+        <div class="side-sub">consecutive correct</div>
+      </div>
+      <div class="side-card" style="flex:1">
+        <div class="side-label">Weak Areas</div>
+        <div class="weak-list" id="weak-list">
+          <div style="font-size:9px;color:var(--text3)">None yet — keep going</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conf-buttons" id="conf-buttons" style="display:none">
+    <button class="conf-btn conf-know" onclick="rate('know')">✓ GOT IT</button>
+    <button class="conf-btn conf-unsure" onclick="rate('unsure')">~ UNSURE</button>
+    <button class="conf-btn conf-missed" onclick="rate('missed')">✗ MISSED</button>
+  </div>
+</div>
+
+<!-- ── COMPLETE SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-complete">
+  <div class="complete-icon" id="complete-icon">🎯</div>
+  <div class="complete-title" id="complete-title">LEVEL COMPLETE</div>
+  <div class="complete-sub" id="complete-sub">Bush Phase 1 · Core Limits Mastered</div>
+  <div class="complete-score" id="complete-score">18/20</div>
+  <div class="complete-score-label">CARDS MASTERED</div>
+  <button class="btn-primary" onclick="goHome()">BACK TO MISSIONS</button>
+  <button class="btn-primary" onclick="retryMission()" style="background:var(--navy3);color:var(--gold);border:1px solid var(--gold3)">DRILL AGAIN</button>
+</div>
+
+<!-- ── MODULES SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-modules">
+  <div class="modules-header">
+    <button class="btn-back" onclick="goHome()">← MISSIONS</button>
+    <div class="cards-title">DEEP READ MODULES</div>
+  </div>
+  <div class="mod-grid" id="mod-grid"></div>
+</div>
+
+<!-- ── MODULE DETAIL ──────────────────────────── -->
+<div class="screen" id="screen-moddetail">
+  <div class="moddetail-header">
+    <button class="btn-back" onclick="showScreen('screen-modules')">← MODULES</button>
+    <div class="cards-title" id="moddetail-title">Module Title</div>
+  </div>
+  <div class="moddetail-content" id="moddetail-content"></div>
 </div>
 
 <script>
-const modules = [
+// ── IMAGE DATA ────────────────────────────────────
+const IMGS = {
+  cockpit_panel: null,
+  cockpit_close: null,
+  panel_switches: null,
+  maseke_strip1: null,
+  maseke_strip2: null,
+  maseke_powerlines: null,
+  maseke_elephant: null,
+  maseke_road: null,
+};
+
+// ── CARD DATA ─────────────────────────────────────
+
+const MISSIONS = [
   {
-    id:'A', phase:'Phase 2 — Mobile', title:'General Rules & Operating Limits',
-    subtitle:'Everything that governs how ZU-IZU is legally and safely operated. These are the non-negotiables.',
-    objective:'Know the operating envelope of ZU-IZU cold. These limits exist because someone already tested what happens when you exceed them.',
-    topics:[
-      'MTOW: 600 kg · Empty: 385 kg · Useful load: 215 kg · Baggage max: 30 kg (C of G limit)',
-      'VNE: 113 kts — Never Exceed. Structural failure territory above this.',
-      'VNO: 100 kts — Max structural cruise. Only exceed in smooth air with caution.',
-      'VA: 84 kts — Manoeuvring speed. No full control deflection above this.',
-      'Load factors: Flaps UP +4G / -2G · Flaps DOWN +2G · No aerobatics · No intentional spins.',
-      'Max bank angle: 60°. Day and night VMC only.',
-      'Crosswind demonstrated: 20 kts. Recommended for average pilot: 15 kts.',
-      'No transponder fitted on ZU-IZU. No carb heat — KFA 912 ULS-ST is turbocharged.',
-      'Fuel: Mogas 95 or Avgas 100LL. Avgas changes maintenance intervals — consult POH.',
-      'Starter: Max 20 sec continuous cranking. 1 min cooling before retry.',
-      'Airframe major inspection: 1000 hr / 20 years / 8000 landings — whichever first.',
-    ],
-    activity:'📖 Read all limits. Then cover the screen and write them from memory. Focus on speeds — they will be quizzed. Understand WHY each limit exists.',
-    scenario:'You are in a 45° banked turn at 90 kts over Maseke when you enter unexpected turbulence from the escarpment.',
-    reviewQ:'What is your margin to VA? What should you do and why? Then state VNE, VNO, VA, VS and VX from memory.',
-    quiz:[
-      { scenario:'You are climbing at 95 kts when you enter unexpected turbulence over the escarpment west of Maseke.', q:'What is the correct action regarding airspeed?', opts:['Maintain 95 kts — below VNO so fine','Reduce to 85 kts — POH turbulent air penetration speed','Accelerate to VNE for control authority','Reduce to VX 47 kts immediately'], correct:1, exp:'POH Ch4 states turbulent air penetration speed is 85 kts. At 95 kts approaching VNO in turbulence risks structural stress. Reduce smoothly — do not yank the controls.', poh:'POH Ch4: Turbulent air penetration 85 kts' },
-      { scenario:null, q:'What does the POH recommend as the crosswind limit for the average pilot?', opts:['20 kts — demonstrated figure applies to all','15 kts','10 kts','No stated recommendation'], correct:1, exp:'POH Ch2 and Ch4: demonstrated crosswind 20 kts. The POH specifically recommends average pilots do not exceed 15 kts. At FAHT with FAHS traffic nearby, conservative crosswind limits are prudent.', poh:'POH Ch2 §2.1 and Ch4' },
-      { scenario:'Loading at Maseke: Pilot 85 kg, observer 90 kg, equipment 20 kg, fuel 80L (57.6 kg). Aircraft empty weight 385 kg.', q:'Are you within MTOW limits?', opts:['Yes — MTOW 600 kg so plenty of room','No — 385+85+90+20+57.6 = 637.6 kg. Over MTOW by 37.6 kg.','Yes — fuel is not counted in useful load','Cannot determine without W&B sheet'], correct:1, exp:'385 + 85 + 90 + 20 + 57.6 = 637.6 kg. Exceeds MTOW 600 kg by 37.6 kg. Reduce fuel or payload. At Maseke in hot conditions this is a real daily calculation.', poh:'POH Ch6: MTOW 600 kg' },
+    id: 0,
+    name: 'CORE LIMITS',
+    level: 'Level 1 · Survival Memory',
+    unlocked: true,
+    threshold: 14, // cards to complete
+    cards: [
+      // SPEEDS
+      {id:'vne', q:'VNE', front:'?', answer:'113 KTS', sub:'Never Exceed — structural failure above this', type:'speed', poh:'POH §2.2', hint:'Never exceed'},
+      {id:'vno', q:'VNO', front:'?', answer:'100 KTS', sub:'Max structural cruise. Smooth air only beyond this.', type:'speed', poh:'POH §2.2', hint:'Max cruise'},
+      {id:'va', q:'VA', front:'?', answer:'84 KTS', sub:'Manoeuvring speed. No full control deflection above this.', type:'speed', poh:'POH §2.2', hint:'Manoeuvring'},
+      {id:'vx', q:'VX', front:'?', answer:'47 KTS', sub:'Best angle of climb. Obstacle clearance.', type:'speed', poh:'POH §2.2', hint:'Best angle'},
+      {id:'vy', q:'VY', front:'?', answer:'58 KTS', sub:'Best rate of climb. Most altitude per minute.', type:'speed', poh:'POH §2.2', hint:'Best rate'},
+      {id:'vs', q:'VS CLEAN', front:'?', answer:'38 KTS', sub:'Stall speed clean at MAUW, power off', type:'speed', poh:'POH §2.2', hint:'Clean stall'},
+      {id:'vso', q:'VS0 FULL FLAP', front:'?', answer:'35 KTS', sub:'Stall speed with full flap deployed', type:'speed', poh:'POH §2.2', hint:'Flap stall'},
+      {id:'vr', q:'VR', front:'?', answer:'42–45 KTS', sub:'Rotation speed on take-off', type:'speed', poh:'POH §4', hint:'Rotate'},
+      {id:'glide', q:'BEST GLIDE', front:'?', answer:'67 KTS', sub:'8.5:1 ratio. Engine out — set this immediately.', type:'speed', poh:'POH §2.3', hint:'Engine out speed'},
+      {id:'turb', q:'TURBULENCE PENETRATION', front:'?', answer:'85 KTS', sub:'Reduce to this in unexpected turbulence', type:'speed', poh:'POH §4', hint:'Rough air'},
+      // LIMITS
+      {id:'rpm_max', q:'MAX RPM', front:'?', answer:'5800', sub:'5 minutes maximum. Absolute ceiling.', type:'limit', poh:'POH §2.3', hint:'5 min limit'},
+      {id:'rpm_cont', q:'MAX CONTINUOUS RPM', front:'?', answer:'5500', sub:'Never exceed this for extended operation', type:'limit', poh:'POH §2.3', hint:'Continuous'},
+      {id:'rpm_idle', q:'IDLE RPM (HOT)', front:'?', answer:'1400–1700', sub:'Normal hot idle range', type:'limit', poh:'POH §2.3', hint:'Ground idle'},
+      {id:'egt', q:'EGT MAX (TURBO)', front:'?', answer:'920°C', sub:'Exhaust Gas Temperature — turbo version', type:'limit', poh:'POH §2.3', hint:'Exhaust temp'},
+      {id:'cht', q:'CHT MAX', front:'?', answer:'130°C', sub:'Cylinder Head Temp. Normal 75–120°C', type:'limit', poh:'POH §2.3', hint:'Cylinder head'},
+      {id:'oil_temp', q:'OIL TEMP MAX', front:'?', answer:'130°C', sub:'Normal range 90–110°C. Min 50°C before run-up.', type:'limit', poh:'POH §2.3', hint:'Oil temp'},
+      {id:'water_temp', q:'WATER TEMP MAX', front:'?', answer:'120°C', sub:'Normal 50–110°C', type:'limit', poh:'POH §2.3', hint:'Coolant'},
+      {id:'oil_press', q:'OIL PRESSURE MAX', front:'?', answer:'7 BAR', sub:'Normal 2–5 bar. Min 0.8 bar at idle.', type:'limit', poh:'POH §2.3', hint:'Oil press'},
+      {id:'mag_drop', q:'MAG CHECK — MAX DROP', front:'?', answer:'300 RPM', sub:'Max drop each mag. Max diff 150 RPM between mags.', type:'limit', poh:'POH §4', hint:'@ 4000 RPM'},
+      {id:'fuel_warn', q:'HEADER TANK WARNING', front:'?', answer:'~8 MIN', sub:'From light ON to engine stop at cruise power. Act immediately.', type:'limit', poh:'POH §1', hint:'Red warning light'},
     ]
   },
   {
-    id:'B', phase:'Phase 2 — Mobile', title:'Fuel System Mastery',
-    subtitle:'The most operationally critical system on ZU-IZU. Own it completely.',
-    objective:'Understand every component, valve, and warning — and manage a fuel emergency from memory under stress.',
-    topics:[
-      'Wing tanks: 50L each (100L total usable in level flight). Unusable: 400ml header + 2.5L per wing.',
-      'Header tank: 5L mounted low aft of firewall. Buffer for low fuel / nose-low / sideslip attitudes.',
-      'Fuel feed: Gravity → header tank → mechanical pump → backup electric pump.',
-      'Selector logic: ONE closed on ground. BOTH open for T/O, landing, all manoeuvring except level cruise.',
-      'CRITICAL: Both tanks OPEN before any sideslip. Low fuel + nose-low + single tank = starvation risk.',
-      'Header tank warning light: ~500ml air in header. ~8 min at cruise power from warning to engine stop.',
-      'Immediate actions: Level wings → reduce power → check all valves open → select fullest tank.',
-      'Fuel sample: Below header tank, right side of cowling — lowest point in system. Every flight.',
-      'Fuel quantity: Visual sighting from cockpit via LED lights. Aircraft must be level for accuracy.',
-      'Long cruise management: Alternate tanks every 30 min. Ball centred — unbalanced causes fuel imbalance.',
-      'Fuel burn (KFA 912 ULS-ST): 16-25 L/hr at 80-100 kts. Endurance 5 hrs at 20 L/hr no reserve.',
-      'Emergency shut-off valve: Above flap handle on centre console. Only close for suspected engine fire or maintenance.',
-    ],
-    activity:'🧠 Trace the entire fuel path from wing tank to engine in your mind. Drill the 8-min header tank warning action from memory — say it out loud.',
-    scenario:'You are 40 min into a surveillance flight at 500ft AGL over Maseke. Header tank warning light illuminates. You were flying ball-right for 15 min with only the right tank open.',
-    reviewQ:'Walk through the complete fuel emergency from the moment the light illuminates. What caused it? Immediate actions in order? Time margin?',
-    quiz:[
-      { scenario:'Header tank warning light illuminates at 500ft AGL over Maseke bush.', q:'What is your immediate first action?', opts:['Declare MAYDAY immediately','Level the wings and reduce power','Land immediately regardless of terrain','Switch off master to preserve battery'], correct:1, exp:'Level wings first — banked attitude with low fuel accelerates starvation. Then reduce power to extend time. POH: ~8 min from light to engine stop at cruise power. Reducing power significantly extends this margin.', poh:'POH Ch1: Header tank warning — immediate actions' },
-      { scenario:null, q:'You are about to sideslip on final at a bush strip. What must you do to the fuel selectors first?', opts:['Close right tank to prevent overflow','Both tanks must be OPEN before any sideslip','Makes no difference during a sideslip','Close both — gravity feed is sufficient for a short approach'], correct:1, exp:'POH is explicit: select both fuel tank selectors ON before side-slipping. Sideslip combined with low fuel and single open tank risks uncovering the fuel outlet — causing starvation even with fuel still aboard.', poh:'POH Ch4: Approach — both tanks OPEN before sideslip' },
-      { scenario:'Parked at Maseke on a nose-high slope after 2 hrs flying. Both tanks were open in flight.', q:'What do you do with the fuel selectors on shutdown?', opts:['Leave both open — they were open in flight','Close one valve — slope parking with both open risks fuel flowing from higher tank and spilling through vent pipe','Close both immediately','Makes no difference on shutdown'], correct:1, exp:'POH Ch4 shutdown: when parked on a slope, close one tank valve. Prevents fuel from higher tank flowing to lower and spilling through the vent pipe — which can damage the fabric.', poh:'POH Ch4: Shutdown — fuel valve management on slope' },
+    id: 1,
+    name: 'FLOWS & CHECKS',
+    level: 'Level 2 · Procedures',
+    unlocked: false,
+    threshold: 14,
+    cards: [
+      {id:'runup_t1', q:'RUN-UP MNEMONIC — FIRST 4', front:'T-T-T-T', answer:'TRIM · THROTTLE · TEST · TEMPS', sub:'Trim set · Throttle friction · Test controls · Temperatures in green', type:'proc', poh:'POH §4', hint:'Run-up start'},
+      {id:'runup_rest', q:'RUN-UP MNEMONIC — REST', front:'M·P-P·G·F-F·I·H·E', answer:'MAGS · PRESS · PITOT · GYROS · FUEL · FLAPS · INSTRS · HATCHES · ELECTRICS', sub:'Full run-up flow after T-T-T-T', type:'proc', poh:'POH §4', hint:'Complete flow'},
+      {id:'before_to', q:'BEFORE TAKEOFF MNEMONIC', front:'?', answer:'TOO MANY PILOTS FORGET GOOD HABITS INCREDIBLY EASILY', sub:'T-M-P-F-G-H-I-E', type:'proc', poh:'POH §4', hint:'Pre-takeoff'},
+      {id:'after_to', q:'AFTER TAKEOFF', front:'?', answer:'B-U-T-P-M-F-F-E', sub:'Brakes · Undercarriage · Throttle · Pitch · Mix · Fuel · Flap · Electrics', type:'proc', poh:'POH §4', hint:'After rotate'},
+      {id:'downwind', q:'DOWNWIND CHECK', front:'?', answer:'B-U-M-P-F-F-H', sub:'Brakes · Undercarriage · Mixture · Pitch · Fuel · Flap · Hatches+Harnesses', type:'proc', poh:'POH §4', hint:'In the circuit'},
+      {id:'hasel', q:'UPPER AIR — HASEL', front:'?', answer:'HEIGHT · AIRFRAME · SECURITY · ENGINE · LOCATION', sub:'Min 2000ft AGL. Check FAHS boundary before any upper air work.', type:'proc', poh:'POH §9', hint:'Before manoeuvres'},
+      {id:'shutdown', q:'SHUTDOWN SEQUENCE', front:'?', answer:'RADIO → EFIS → GPS → MAGS → KEY → ELECTRICS → FUEL → PROP', sub:'EFIS off before mags. One fuel valve closed on shutdown.', type:'proc', poh:'POH §4', hint:'Engine off'},
+      {id:'preflight_fuel', q:'FUEL SELECTOR — GROUND', front:'?', answer:'ONE CLOSED', sub:'Either tank closed on the ground. Both open for T/O, landing and manoeuvring.', type:'proc', poh:'POH §4', hint:'Ground ops'},
+      {id:'takeoff_flap', q:'TAKE-OFF FLAP', front:'?', answer:'5°', sub:'Set 5° for take-off. Max 12° while retaining aileron control.', type:'proc', poh:'POH §4', hint:'Flap setting'},
+      {id:'rotate', q:'ROTATE — TAILWHEEL T/O', front:'?', answer:'SLOW TAIL RAISE · 5-COUNT · EDGES', sub:'Let tail rise slowly. 5-count after full power before assisting. Watch runway EDGES not centreline.', type:'proc', poh:'POH §4', hint:'Tailwheel technique'},
+      {id:'pretakeoff_brief1', q:'PRE T/O BRIEF — BEFORE ROTATION', front:'?', answer:'CLOSE POWER · DIRECTIONAL CONTROL · BRAKE · CLEAR RUNWAY', sub:'Any abnormality before rotation', type:'proc', poh:'POH §3', hint:'Abort on ground'},
+      {id:'pretakeoff_brief2', q:'PRE T/O BRIEF — RUNWAY REMAINING', front:'?', answer:'CLOSE POWER · LOWER NOSE · FLAPS AS REQ · LAND AHEAD · BRAKE · CLEAR', sub:'Any abnormality after rotation with sufficient runway remaining', type:'proc', poh:'POH §3', hint:'Abort airborne'},
+      {id:'pretakeoff_brief3', q:'PRE T/O BRIEF — NO RUNWAY', front:'?', answer:'LOWER NOSE · BEST GLIDE · 30° ARC · NO TURNBACK · FLAPS WHEN ASSURED · KEEP FLYING', sub:'Any abnormality after rotation with insufficient runway remaining', type:'proc', poh:'POH §3', hint:'Engine failure T/O'},
+      {id:'goaround', q:'GO-AROUND SEQUENCE', front:'?', answer:'FULL POWER · RIGHT RUDDER · POSITIVE CLIMB · RETRACT FLAP · 50→60 KTS', sub:'WARNING: full nose-up trim + full power = pitch-up. Push stick forward immediately.', type:'proc', poh:'POH §3', hint:'Aborted landing'},
+      {id:'goaround_warn', q:'GO-AROUND WARNING', front:'FULL NOSE-UP TRIM + FULL POWER =', answer:'STRONG NOSE-UP PITCH TENDENCY', sub:'Push stick forward immediately as power applied. This can be fatal at low altitude.', type:'proc', poh:'POH §3', hint:'Critical warning'},
+      {id:'door', q:'UNLATCHED DOOR IN FLIGHT', front:'?', answer:'SAFE TO FLY · MAX 70 KTS · PULL HANDLE TOWARD YOU', sub:'Aircraft flies safely with door open. Close against airflow resistance.', type:'proc', poh:'POH §3', hint:'In-flight'},
+      {id:'climb_normal', q:'NORMAL CLIMB', front:'?', answer:'60 KTS / 5500 RPM', sub:'Preferred climb — better cooling vs small ROC loss', type:'proc', poh:'POH §4', hint:'Climb power'},
+      {id:'approach_speed', q:'NORMAL APPROACH SPEED', front:'?', answer:'50–60 KTS', sub:'5° flap: 60 kts. 8–12° over the fence: 50–55 kts.', type:'proc', poh:'POH §4', hint:'On final'},
+      {id:'sideslip_fuel', q:'BEFORE SIDESLIP — FUEL SELECTORS', front:'?', answer:'BOTH TANKS OPEN', sub:'Low fuel + single tank open + nose-low attitude = starvation risk', type:'proc', poh:'POH §4', hint:'Critical — fuel'},
+      {id:'fuel_action', q:'HEADER TANK LIGHT ON — FIRST ACTIONS', front:'?', answer:'LEVEL WINGS · REDUCE POWER · CHECK VALVES OPEN · SELECT FULLEST TANK', sub:'~8 min remaining. Act immediately. Find landing spot first.', type:'proc', poh:'POH §1', hint:'Emergency fuel'},
     ]
   },
   {
-    id:'C', phase:'Phase 2 — Mobile', title:'Mnemonic Mastery',
-    subtitle:'All ZU-IZU mnemonics cold. No notes. Timed. These are your mental checklists under stress.',
-    objective:'Every checklist mnemonic must be instantly retrievable. Drill until automatic.',
-    topics:[
-      'RUN-UP: T-T-T-T · M · P-P · G · F-F · I · H · E',
-      'T — Trim set for take-off',
-      'T — Throttle friction set',
-      'T — Test controls full and free',
-      'T — Temperatures in green (oil temp ≥50°C)',
-      'M — Magnetos check 4000 RPM (max drop 300, diff 150)',
-      'P — Pressure: oil pressure normal',
-      'P — Pitot / instruments check',
-      'G — Gyros / EFIS check (G3X engine page live)',
-      'F — Fuel: quantity and both valves open',
-      'F — Flaps set 5° for take-off',
-      'I — Instruments cross-check',
-      'H — Hatches and harnesses secure',
-      'E — Electrics, radio, intercom set',
-      'BEFORE T/O: Too Many Pilots Forget Good Habits Incredibly Easily (T-M-P-F-G-H-I-E)',
-      'AFTER T/O: B-U-T-P-M-F-F-E',
-      'DOWNWIND: B-U-M-P-F-F-H',
-      'UPPER AIR: H-A-S-E-L (Height, Airframe, Security, Engine, Location)',
-      'SHUTDOWN: Radio → EFIS → GPS → Mags → Key → Electrics → Fuel → Prop level',
-    ],
-    activity:'⏱ Set a 60-second timer. Recite ALL mnemonics without looking. Repeat until clean. Then repeat tomorrow.',
-    scenario:'On downwind at FAHT, AFIS is busy, your passenger asks a question and you realise you have not run the downwind checks.',
-    reviewQ:'Recite B-U-M-P-F-F-H and state what each letter means for ZU-IZU specifically. Which items are N/A and why?',
-    quiz:[
-      { scenario:null, q:'In T-T-T-T·M·P-P·G·F-F·I·H·E, what does the second F stand for?', opts:['Full power check','Flaps set for take-off (5°)','Fuel totaliser cross-checked','Fire extinguisher accessible'], correct:1, exp:'Second F = Flaps set 5° for take-off. First F = Fuel (quantity and both valves open). Both checked in sequence during run-up flow.', poh:'POH Ch4: Before Takeoff' },
-      { scenario:null, q:'HASEL — what does L stand for and why is it critical at FAHT?', opts:['Levers — all controls free','Location — landmarks, landing field, look out for traffic','Limits — confirm flight envelope','Level — wings level before manoeuvre'], correct:1, exp:'L = Location. Know a landmark, see a landing field, scan 180° for traffic. At FAHT this is critical because FAHS military airspace is immediately adjacent. Know exactly where you are before any upper air work.', poh:'POH Ch9: HASEL' },
-      { scenario:'200ft after take-off from FAHT. Positive rate of climb established.', q:'When do you retract flaps and which mnemonic covers this?', opts:['Immediately after rotate','At 200ft positive rate of climb — covered in B-U-T-P-M-F-F-E (second F)','At 500ft AGL only','Only when established in cruise climb'], correct:1, exp:'POH Ch4: After Take-Off checks at 200ft positive rate of climb. B-U-T-P-M-F-F-E covers after take-off flow. Second F = Flap — retract slowly. Do not rush the retraction.', poh:'POH Ch4: After Takeoff' },
+    id: 2,
+    name: 'AIRCRAFT SYSTEMS',
+    level: 'Level 3 · Systems',
+    unlocked: false,
+    threshold: 12,
+    cards: [
+      {id:'sys_fuel1', q:'FUEL SYSTEM — TOTAL USABLE', front:'?', answer:'100 LITRES', sub:'50L per wing tank in level flight. Header tank 5L buffer.', type:'sys', poh:'POH §1', hint:'Wing tanks'},
+      {id:'sys_fuel2', q:'HEADER TANK — PURPOSE', front:'?', answer:'BUFFER FOR LOW FUEL / NOSE-LOW / SIDESLIP ATTITUDES', sub:'Without it gravity feed fails in these attitudes. Essential for STOL ops.', type:'sys', poh:'POH §1', hint:'Why it exists'},
+      {id:'sys_fuel3', q:'FUEL FEED PATH', front:'?', answer:'GRAVITY → HEADER TANK → MECH PUMP → BACKUP ELECTRIC', sub:'Primary is gravity. Mechanical pump standard. Electric pump backup only.', type:'sys', poh:'POH §1', hint:'Fuel path'},
+      {id:'sys_engine1', q:'ENGINE TYPE', front:'?', answer:'KFA 912 ULS-ST · TURBOCHARGED · 135HP', sub:'Zongshen ZS block. KFA turbo. No carb ice risk. No carb heat.', type:'sys', poh:'POH §1', hint:'Power plant'},
+      {id:'sys_engine2', q:'WHY TURBOCHARGED?', front:'?', answer:'MAINTAINS POWER AT ALTITUDE · HOT/HIGH LIMPOPO OPS', sub:'Standard 912 ULS = 100hp. At DA 4000ft+ that is severely limited. KFA turbo compensates.', type:'sys', poh:'POH §1', hint:'DA performance'},
+      {id:'sys_flap1', q:'FLAPERONS — MAX DEFLECTION', front:'?', answer:'12–15°', sub:'Full span. Combined flap + aileron. Full aileron control retained throughout.', type:'sys', poh:'POH §1', hint:'Control surface'},
+      {id:'sys_flap2', q:'SELECTING FLAP — WHAT HAPPENS?', front:'?', answer:'NOSE DOWN MOMENT · BACK STICK REQUIRED · INCREASED AILERON SENSITIVITY', sub:'Full flap produces significant nose-down. Apply nose-up trim. Ailerons become more responsive.', type:'sys', poh:'POH §7', hint:'Flap effects'},
+      {id:'sys_tail', q:'WHY TAILWHEEL FOR MASEKE?', front:'?', answer:'BETTER PROP CLEARANCE · LIGHTER · MORE RESPONSIVE ON ROUGH STRIPS', sub:'Lower empty weight. Better ground clearance. Higher pilot skill demand — deliberate choice.', type:'sys', poh:'POH §1', hint:'Config choice'},
+      {id:'sys_gear', q:'KFA BUFFALO SUSPENSION', front:'?', answer:'BUNGEE/BUFFALO GEAR FOR ROUGH STRIP ABSORPTION · NO RETRACTION FAILURE RISK', sub:'Designed for exactly the terrain at Maseke. Fixed gear — simplicity is reliability.', type:'sys', poh:'POH §1', hint:'Undercarriage'},
+      {id:'sys_vg', q:'VORTEX GENERATORS — WHAT DO THEY DO?', front:'?', answer:'REDUCE STALL SPEED · IMPROVE LOW-SPEED HANDLING', sub:'Re-energise boundary layer airflow. Precise angle is critical — never bump them.', type:'sys', poh:'POH §3', hint:'Leading edge'},
+      {id:'sys_weight', q:'USEFUL LOAD', front:'?', answer:'215 KG', sub:'MTOW 600kg minus empty 385kg. Max fuel 105L (73kg) eats into this.', type:'sys', poh:'POH §6', hint:'Loading'},
+      {id:'sys_trim', q:'ELEVATOR TRIM — UP BUTTON', front:'?', answer:'NOSE UP TRIM', sub:'Down button = nose down. Indicator light moves down for nose-up. Rigged hands-off level at 85 kts.', type:'sys', poh:'POH §7', hint:'Trim system'},
+      {id:'sys_prop', q:'E-PROP 4-BLADE 72" — WHY 4 BLADE?', front:'?', answer:'SHORTER DIAMETER = BETTER GROUND CLEARANCE · SMOOTHER POWER DELIVERY', sub:'Same thrust from shorter prop. Critical for rough strip operations.', type:'sys', poh:'POH §1', hint:'Propeller'},
+      {id:'sys_oil', q:'OIL PRESSURE — MUST RISE WITHIN', front:'?', answer:'10 SECONDS OF START', sub:'If no rise within 10 seconds — shut down immediately. Engine damage risk.', type:'sys', poh:'POH §4', hint:'Post-start check'},
+      {id:'sys_starter', q:'STARTER — MAX CONTINUOUS CRANKING', front:'?', answer:'20 SECONDS · 1 MIN COOLING BEFORE RETRY', sub:'Starter motor protection. Follow this strictly.', type:'sys', poh:'POH §2.3', hint:'Engine start'},
+      {id:'sys_load', q:'LOAD FACTORS', front:'?', answer:'+4G / -2G (FLAPS UP)
++2G (FLAPS DOWN)', sub:'No aerobatics. No intentional spins. Max bank 60°.', type:'sys', poh:'POH §6', hint:'Structural limits'},
     ]
   },
   {
-    id:'D', phase:'Phase 2 — Mobile', title:'Emergency Procedures',
-    subtitle:'Drilled until automatic. Under stress you will not think — you will act.',
-    objective:'Every emergency procedure retrievable in under 5 seconds. Fly the aircraft first. Always.',
-    topics:[
-      'TIER 1 — Before rotation: Close power · Directional control · Brake as required · Clear runway',
-      'TIER 2 — After rotation, runway remaining: Close power · Lower nose · Flaps as required · Land ahead · Brake · Clear runway',
-      'TIER 3 — Insufficient runway: Lower nose immediately · Best glide 67 kts · Select area within 30° L or R · No turnback · Flaps when assured · Keep flying the airplane',
-      'ENGINE FAILURE ALTITUDE: 67 kts best glide (8.5:1). Fuel starvation most likely. Restart if altitude permits. MAYDAY 121.5.',
-      'ENGINE FIRE IN FLIGHT: Mags OFF · Emergency fuel shut-off CLOSED · Fuel selectors CLOSED · Power OFF · Emergency descent · Sideslip fire away from cockpit.',
-      'ENGINE FIRE ON GROUND: Mags OFF · Fuel shut-off CLOSED · Fuel selectors CLOSED · Power OFF · Evacuate.',
-      'GO-AROUND: Full power · Right rudder · RPM below 5800 · Track straight · Positive climb · Retract flap · Min 50 kts → build to 60 kts.',
-      'WARNING GO-AROUND: Full nose-up trim + full power = strong nose-up pitch. Push stick forward immediately.',
-      'UNLATCHED DOOR: Safe to fly. Max 70 kts. Pull handle toward you. Latch normally.',
-      'BEST GLIDE: 67 kts = 8.5:1. At 1000ft AGL you have approx 1.4 nm glide range.',
-    ],
-    activity:'🚨 Drill all tiers verbatim. Cover screen. Recite each tier three times from memory. Then close your eyes — talk through an engine fire in flight from the moment you smell smoke.',
-    scenario:'Departing FAHT runway. At 150ft AGL the engine loses power significantly but does not stop. Scrub ahead. Runway behind you.',
-    reviewQ:'Talk through exact actions. Priority? Do you attempt to return to runway? Why or why not? Target speed?',
-    quiz:[
-      { scenario:'Engine failure immediately after take-off from FAHT. 200ft AGL. Runway behind. Bush ahead.', q:'Your first action:', opts:['Attempt turnback to runway','Close power, lower nose, land ahead, keep flying the airplane','Declare MAYDAY on 121.5','Climb steeply for restart altitude'], correct:1, exp:'Fly the aircraft. Close power, lower nose, land ahead. The turnback at low altitude is one of the most statistically lethal decisions in aviation. At 200ft you do not have altitude to turn back. POH: Do not attempt to turn back to the field.', poh:'POH Ch3: Engine Failure After Takeoff' },
-      { scenario:'3000ft over Maseke. You smell fuel and see smoke from the engine compartment.', q:'Correct sequence for engine fire in flight:', opts:['Land immediately without touching anything','Mags OFF · Shut-off CLOSED · Selectors CLOSED · Power OFF · Emergency descent · Sideslip fire away from cockpit','Fuel selectors CLOSED first · then mags · then descend','Pull parachute handle immediately'], correct:1, exp:'POH Ch3 fire procedure in this exact order. The sideslip is critical — use it to draft fire away from the cockpit. Parachute is last resort. Attempt engine fire procedure first.', poh:'POH Ch3: Engine Fire In Flight' },
-      { scenario:'On final at Maseke, fully configured, trimmed full nose-up. Unstable approach — you go around.', q:'What specific hazard must you anticipate the moment you apply full power?', opts:['Propeller torque yaws right only','Full nose-up trim + full power = strong nose-up pitch tendency — push stick forward immediately while applying right rudder','Flaps retract automatically at full power','No specific hazard — apply full power normally'], correct:1, exp:'POH Ch3 and Ch4 specifically warn: full nose-up trim on landing + full power on go-around = nose-up pitching moment. Push stick forward as required and trim nose-down while climbing out. At low altitude this can be fatal if not anticipated.', poh:'POH Ch3: Go-Around WARNING' },
+    id: 3,
+    name: 'MASEKE OPS',
+    level: 'Level 4 · Bush Mastery',
+    unlocked: false,
+    threshold: 12,
+    cards: [
+      // Photo recognition cards
+      {id:'photo_panel', q:'IDENTIFY: ZU-IZU PANEL', front:'WHAT ARE THE KEY ITEMS ON THE LEFT SIDE?', answer:'L/MAG · R/MAG SWITCHES
+ACC/OFF/ON/START KEY
+G3X TOUCH EFIS', sub:'Carbon fibre panel. G3X is primary. Key has REMOVE BEFORE FLIGHT tag.', type:'scenario', poh:'Cockpit', hint:'Panel recognition', img:'cockpit_panel'},
+      {id:'photo_switches', q:'IDENTIFY: CIRCUIT BREAKER ROW', front:'NAME THE BREAKERS LEFT TO RIGHT', answer:'CHRG · AVMASTR · EFIS · RADIO · INTRCOM · USB · LIGHTS · TRIM · PROP · FP1 · FP2', sub:'Red strip at bottom of panel. Know which breaks what.', type:'scenario', poh:'Cockpit', hint:'Red breaker strip', img:'panel_switches'},
+      {id:'photo_maseke1', q:'MASEKE STRIP — WHAT DO YOU SEE?', front:'ASSESS THIS APPROACH', answer:'NARROW · RED DIRT · TREE-LINED · SLOPE VISIBLE', sub:'SUITABL assessment: Surface (dirt, firm), Undershoot (bush), Into wind (assess sock), Touchdown point, Adequate length, Barriers (trees both sides), Landing direction.', type:'scenario', poh:'Bush ops', hint:'Strip assessment', img:'maseke_strip1'},
+      {id:'photo_powerlines', q:'MASEKE FINAL — HAZARD?', front:'WHAT ARE THE RED BALLS FOR?', answer:'POWER LINES ON FINAL
+STEEP APPROACH REQUIRED', sub:'Power lines also on departure end. VX 47 kts discipline critical on departure. Not a Day 1 strip.', type:'scenario', poh:'Bush ops', hint:'Approach hazard', img:'maseke_powerlines'},
+      {id:'photo_elephant', q:'MASEKE — STRIP INSPECTION', front:'WHAT IS THIS AND WHAT DO YOU DO?', answer:'WILDLIFE ON STRIP · LOW PASS TO CLEAR · DO NOT LAND', sub:'Announce blind broadcast. Low pass at safe altitude. Wait for strip to clear. Reassess fuel.', type:'scenario', poh:'Bush ops', hint:'Wildlife hazard', img:'maseke_elephant'},
+      // Scenario cards
+      {id:'sc_da', q:'SCENARIO: HOT AFTERNOON · FAHT
+DA 4300FT · MTOW 600KG', front:'T/O ROLL EXPECTATION?', answer:'110–130M MINIMUM', sub:'POH states 80m at ISA sea level. Turbo partially compensates engine but NOT aerodynamic performance. Factor for surface condition too.', type:'scenario', poh:'POH §5', hint:'Performance planning'},
+      {id:'sc_crosswind', q:'SCENARIO: LEFT CROSSWIND · MASEKE
+XWIND 14 KTS', front:'TECHNIQUE?', answer:'CRAB INTO WIND · WINDWARD SIDE LINEUP · LESS FLAP', sub:'Higher crosswind = less flap. Land on upwind main first. Stick forward on touchdown. Windward side lineup — drift toward centreline.', type:'scenario', poh:'POH §4', hint:'Crosswind landing'},
+      {id:'sc_fuel_low', q:'SCENARIO: MASEKE OPS · 2 HRS FLOWN
+HEADER LIGHT ILLUMINATES', front:'IMMEDIATE ACTIONS?', answer:'LEVEL WINGS → REDUCE POWER → CHECK VALVES OPEN → SELECT FULLEST TANK', sub:'Were you flying ball-right with only one tank open? This is the most likely cause. ~8 min remaining.', type:'scenario', poh:'POH §1', hint:'Fuel emergency'},
+      {id:'sc_groundloop', q:'SCENARIO: MASEKE TAKE-OFF
+SWING LEFT AT 30 KTS', front:'CORRECT RESPONSE IN ORDER?', answer:'RUDDER → BRAKE → THROTTLE (EXTREME CAUTION) → AILERON', sub:'135hp can REINFORCE a groundloop if throttle used aggressively. Use rudder and brake first. Throttle last resort only.', type:'scenario', poh:'Tailwheel notes', hint:'Groundloop prevention'},
+      {id:'sc_weather', q:'SCENARIO: 1345 HRS · JANUARY
+CB 25NM WEST · CLOUD BASE 3000FT', front:'GO OR NO-GO?', answer:'NO-GO', sub:'CB within 30nm = no-go. 1345 departure = return 1430 = peak convective activity. Decision made on ground or not at all.', type:'scenario', poh:'Personal minimums', hint:'Weather decision'},
+      {id:'sc_bounce', q:'SCENARIO: WHEEL LANDING · MASEKE
+AIRCRAFT BOUNCES ON TOUCHDOWN', front:'IMMEDIATE ACTION?', answer:'GO-AROUND · FULL POWER · PUSH FORWARD (TRIM WARNING)', sub:'Never try to salvage a bounced landing. Energy is wrong. WARNING: anticipate nose-up pitch if trimmed nose-up.', type:'scenario', poh:'POH §4', hint:'Bounced landing'},
+      {id:'sc_stall', q:'SCENARIO: 45° BANK TURN · 300FT AGL
+60 KTS · DISTRACTED BY SIGHTING', front:'STALL SPEED IN THIS BANK?', answer:'~45 KTS', sub:'45° bank = 1.41G = VS × 1.19 = 38 × 1.19 = 45 kts. Only 15 kts margin at 300ft AGL. This is how fatal accidents happen.', type:'scenario', poh:'POH §2.2', hint:'Stall in turn'},
+      {id:'sc_fatigue', q:'SCENARIO: 3 HRS SURVEILLANCE
+TIRED · ONE MORE TRANSECT REQUESTED', front:'YOUR DECISION?', answer:'LAND · MISSION CAN WAIT · FATIGUE KILLS', sub:'Fatigue impairs self-assessment. Decision-making degrades first — before you notice it. Pre-determined limits beat in-moment judgement every time.', type:'scenario', poh:'Good airmanship', hint:'Human factors'},
+      {id:'sc_maseke_depart', q:'MASEKE DEPARTURE · POWER LINES AHEAD
+VX SPEED?', front:'?', answer:'47 KTS · MAINTAIN UNTIL CLEAR', sub:'Best angle of climb. Do not chase VY until obstacles are cleared. This is exactly what VX is for.', type:'scenario', poh:'POH §2.2', hint:'Obstacle departure'},
+      {id:'sc_suitabl', q:'BUSH STRIP ASSESSMENT', front:'SUITABL =', answer:'SURFACE · UNDERSHOOT · INTO WIND · TOUCHDOWN POINT · ADEQUATE LENGTH · BARRIERS · LANDING DIRECTION', sub:'Run this every strip, every time. Maseke: surface OK, power lines are the BARRIERS to plan for.', type:'scenario', poh:'Bush ops', hint:'Strip assessment'},
     ]
-  },
-  {
-    id:'E', phase:'Phase 2 — Mobile', title:'FAHT Frequencies & Nearby Airports',
-    subtitle:'Know your environment. Radio discipline starts with knowing who you are talking to.',
-    objective:'Master the FAHT radio environment, surrounding airspace, and standard call formats for all phases of flight.',
-    topics:[
-      'FAHT — Hoedspruit Civil Airfield: Uncontrolled. AFIS. Confirm current frequency via AIP/NOTAM.',
-      'FAHS — Hoedspruit AFB: Military. Adjacent to FAHT. Pink restricted circle on G3X. Coordination required.',
-      'FAGE — Eastgate Airport: Nearby. Commercial traffic awareness.',
-      'FAPH — Phalaborwa: North. Gateway to KNP northern section.',
-      'FATZ — Tzaneen: South. Class D — controlled. Different procedures.',
-      'Emergency: 121.5 MHz — monitor always when workload permits.',
-      'FAHT calls: Taxi → Backtrack → Lining Up → Airborne → Joining → Downwind → Final → Clear.',
-      'Maseke blind broadcasts: Position, intentions, height, direction. Announce at 10nm, 5nm, final, clear.',
-      'Ops area broadcast: ZU-IZU operating low level [area] at [altitude] on frequency until [time].',
-      'MAYDAY: MAYDAY ×3 · ZU-IZU · position · nature · souls · intentions.',
-      'PAN-PAN: Same structure, lower urgency — not yet life-threatening.',
-    ],
-    activity:'🎙 Speak every call out loud — never in your head. Do the complete FAHT circuit call sequence in real time. Then Maseke blind call ×5 until automatic. Record yourself.',
-    scenario:'Inbound to FAHT from Maseke, 2500ft. A helicopter is working the circuit. You have a precautionary fuel state — not an emergency but prefer to land soon.',
-    reviewQ:'Write and speak the exact radio calls from first AFIS contact to landing. How do you communicate fuel preference without declaring a full emergency?',
-    quiz:[
-      { scenario:null, q:'Departing FAHT runway 05, tracking north-east to Maseke, climbing 2500ft. What is your departure call?', opts:['"ZU-IZU, departure."','"Hoedspruit AFIS, ZU-IZU, departing runway zero five, tracking north-east towards Maseke, climbing two thousand five hundred feet."','"ZU-IZU, taking off runway zero five."','"Hoedspruit AFIS, ZU-IZU, airborne."'], correct:1, exp:'Full departure call: callsign, runway, track/direction, intended altitude. Giving AFIS this information allows traffic information to other aircraft. Brevity is good — not at the expense of essential information.', poh:'SA VFR Radio Procedures — Departure call' },
-      { scenario:null, q:'Difference between MAYDAY and PAN-PAN?', opts:['MAYDAY is engine problems only, PAN-PAN for all other emergencies','MAYDAY = grave and imminent danger requiring immediate assistance. PAN-PAN = urgency — serious but not immediately life-threatening.','They are interchangeable — use whichever you remember','PAN-PAN mechanical, MAYDAY medical only'], correct:1, exp:'MAYDAY (French m\'aider — help me): Grave and imminent danger. PAN-PAN (French panne — breakdown): Urgent, serious but not yet life-threatening. Fuel concern with 15+ minutes fuel = PAN-PAN. Engine stopped = MAYDAY.', poh:'ICAO Annex 10 — Emergency communications' },
-      { scenario:'Low level over Maseke. Another aircraft calls the Maseke frequency.', q:'What information do you immediately give?', opts:['Callsign only','Callsign, current position, altitude AGL, direction, estimated time on frequency','Switch to FAHT AFIS to deconflict','No call required — they can see you visually'], correct:1, exp:'At low level in bush, situational awareness between aircraft depends entirely on radio calls. Give everything needed for a mental picture: who, where, how high, which direction, how long. Professional bush radio discipline.', poh:'Good Airmanship — Radio in shared airspace' },
-    ]
-  },
-  {
-    id:'F', phase:'Phase 2 — Mobile', title:'Weather Minima & Go/No-Go',
-    subtitle:'Limpopo weather kills. The thunderstorm does not care about your mission.',
-    objective:'Know the legal VFR minima. More importantly know YOUR personal minimums — which are higher. Go/no-go decisions are made on the ground.',
-    topics:[
-      'Class G VFR minima SA: 1500m visibility · Clear of cloud · 300ft vertical / 1500m horizontal from cloud.',
-      'Below 3000ft AMSL or 1000ft AGL in Class G: Clear of cloud and in sight of surface. 1500m vis still applies.',
-      'FAHT sits at ~1500ft AMSL. Factor this into cloud base calculations.',
-      'Limpopo summer: CB development from midday. Plan to be on ground by 1400 hrs in summer.',
-      'Density altitude at FAHT: 35°C afternoon DA can reach 4500ft+. T/O roll increases significantly.',
-      'Go/No-Go framework: Legal minima are the floor, not the target. Personal minimums are higher.',
-      'Suggested personal minimums for Maseke low-level: 5km+ vis · 2000ft+ AGL cloud base · Wind <15 kts · No Cb 30nm · DA <4000ft.',
-      'Get-home-itis: The mission is never worth more than the aircraft and pilot. If in doubt — do not go.',
-      'Weather tools: SAWS (weathersa.co.za) · Windy.com (low level) · Meteoblue (terrain) · AFIS for local.',
-      'SIGMET awareness: Severe turbulence, CB activity, mountain wave. Check before every flight.',
-    ],
-    activity:'🌩 Check today\'s weather for FAHT on Windy.com and SAWS. Would ZU-IZU be flying today? Run through the go/no-go decision out loud. Practice making and defending it.',
-    scenario:'1330 hrs. Requested surveillance of active poaching at Maseke. Visibility 8km but Cu building rapidly to the west. Wind 12 kts. Passenger insisting the flight must happen now.',
-    reviewQ:'What is your go/no-go decision and how do you communicate it? What are you weighing? What is the risk of departing now vs 30 minutes?',
-    quiz:[
-      { scenario:'1345 hrs January. CB activity developing 25nm west of FAHT. Cloud base 3000ft. Visibility 10km. Wind calm.', q:'Your go/no-go for a 45-minute Maseke surveillance flight:', opts:['Go — visibility and cloud base fine','No-go — CB within 30nm, 1345 departure means return in peak CB window','Go — wind calm so turbulence risk low','Go but plan to return if it gets worse'], correct:1, exp:'CB within 30nm = no-go by professional standards. 45 min departing 1345 = return ~1430 when Limpopo convective activity peaks. "Return if it gets worse" is classic get-home-itis. The decision is made on the ground or not at all.', poh:'Personal Minimums — CB within 30nm' },
-      { scenario:'Density altitude at FAHT today is 4300ft. ZU-IZU at MTOW 600kg.', q:'POH states T/O roll 80m at ISA sea level. Your practical expectation:', opts:['80m — POH figure is for all conditions','Significantly longer — DA 4300ft at MTOW means reduced engine output, reduced prop efficiency, reduced lift. Expect 110-130m minimum.','Turbocharger fully compensates for DA','60m — hot air reduces drag'], correct:1, exp:'The turbocharger partially compensates engine output but does NOT compensate aerodynamic efficiency (prop bite, wing lift). At 4300ft DA and MTOW, budget for significantly extended T/O roll. Know your Maseke strip length.', poh:'POH Ch5: Performance data — ISA conditions' },
-      { scenario:null, q:'Legal VMC minimum visibility in Class G airspace SA, daytime VFR:', opts:['800m','5km','1500m','3km'], correct:2, exp:'1500m is the legal minimum for VFR in Class G by day in South Africa. This is the floor — not a recommendation. Bush and low-level operations should apply higher personal minimums.', poh:'SA CAA CAR 91 — VFR Meteorological Minima' },
-    ]
-  },
-  {
-    id:'G', phase:'Phase 2 — Mobile', title:'Aircraft Systems — Why ZU-IZU Is Built This Way',
-    subtitle:'Every design decision on the Bushbaby Xplorer exists for a reason. Understand the why.',
-    objective:'Understand ZU-IZU\'s systems at a conceptual level. This turns procedures into understanding.',
-    topics:[
-      'HIGH WING: Ground clearance for rough strips. Gravity fuel feed — simpler, fewer failure modes. Better downward visibility for surveillance.',
-      'FABRIC OVER STEEL TUBE: Lightweight. Field-repairable with basic materials. Steel tube structure is crash-resistant. Fabric damage is visible and obvious.',
-      'KFA BUFFALO SUSPENSION: Bungee/Buffalo gear absorbs rough strip landings. Designed for Maseke terrain. Fixed gear — no retraction system to fail.',
-      'TAILWHEEL CONFIGURATION: Lower empty weight. Better prop clearance on rough strips. More responsive on unprepared surfaces. Higher pilot skill demand — deliberate choice.',
-      'FULL-SPAN FLAPERONS: Combined flap/aileron. Max 12-15° while retaining full aileron control. Efficient. Selecting flap increases aileron sensitivity.',
-      'HEADER TANK SYSTEM: Buffer for fuel supply in nose-low, sideslip, and low fuel states. Essential for STOL and bush ops.',
-      'KFA 912 ULS-ST TURBOCHARGED: Standard 912 ULS = 100hp. KFA turbocharges to 135hp. Maintains power at altitude. Critical for hot/high Limpopo. No carb ice risk.',
-      'E-PROP 4-BLADE 72": Shorter diameter than equivalent 2-blade — better ground clearance. More blades = smoother power delivery. Ground-adjustable for specific ops.',
-      'FOLDING WINGS: Transport by trailer. Deploy to Maseke if needed.',
-      'VORTEX GENERATORS (VGs): Reduce stall speed. Improve low-speed handling critical for STOL. Do NOT bump — precise angle is everything.',
-    ],
-    activity:'🔧 Walk around ZU-IZU and identify each system. Touch the fabric, examine the Buffalo suspension, find the header tank, count the VGs. Understanding becomes real when you can point to it.',
-    scenario:'A visiting Cessna 172 pilot asks why you chose a tailwheel over nosewheel for Maseke operations.',
-    reviewQ:'Give three primary reasons tailwheel is better for Maseke. Then state the one significant disadvantage and how you manage it.',
-    quiz:[
-      { scenario:null, q:'Why does ZU-IZU use a header tank in addition to two wing tanks?', opts:['Increase total capacity beyond 100L','Buffer for continued fuel supply during nose-low attitudes, sideslips, and very low fuel — without it gravity feed fails in these attitudes','Comply with SACAA bush aircraft regulations','Allow single-tank cruise operation'], correct:1, exp:'Header tank is a safety buffer. Wing-mounted gravity tanks can uncover outlets during nose-low flight, sideslips, or very low fuel. The header ensures continuous supply to engine in these situations — critical for STOL and bush ops.', poh:'POH Ch1: Fuel System description' },
-      { scenario:null, q:'KFA 912 ULS-ST produces 135hp vs standard Rotax 912 ULS at 100hp. Primary benefit for Maseke ops:', opts:['Higher cruise speed on long transits','Maintaining performance in hot/high Limpopo — standard 100hp is significantly derated at DA 4000ft+, plus short-field climb at Maseke','Reduced fuel consumption','Better engine cooling in hot weather'], correct:1, exp:'At Maseke in summer (35°C, ~1500ft AMSL = DA often 4000ft+), 100hp is significantly limited. KFA turbocharger maintains closer to sea-level engine output at altitude — meaningful STOL performance that a standard engine cannot provide.', poh:'POH Ch1: KFA 912 ULS-ST specifications' },
-      { scenario:null, q:'Why must you never bump the vortex generators (VGs) during cleaning?', opts:['Expensive and difficult to replace','Their precise angle relative to airflow is critical — even small displacement degrades boundary layer energising, potentially raising stall speed and degrading low-speed handling','They contain G3X sensors','They are structural load-bearing components'], correct:1, exp:'VGs create tiny vortices that re-energise boundary layer airflow, delaying stall. Their angle of attack relative to wing chord is precisely set. Bending them — even slightly — degrades effectiveness and can meaningfully increase stall speed. Critical at ZU-IZU\'s STOL operating speeds.', poh:'POH Ch3: Winter Weather — care of vortex generators' },
-    ]
-  },
-  {
-    id:'H', phase:'Phase 2 — Mobile', title:'Taildragger & Bush Strip Techniques',
-    subtitle:'Filtered specifically for ZU-IZU. 135hp changes what works on lighter taildraggers.',
-    objective:'Master techniques specific to ZU-IZU as a tailwheel aircraft in bush environment. Know which generic taildragger advice needs Xplorer modification.',
-    topics:[
-      'GROUND HANDLING: Stick BACK always with engine running. Rudder + differential braking — drag, do not block. Move forward before turning.',
-      'WIND TAXI CORRECTIONS: Headwind — stick BACK, aileron INTO wind. Tailwind — stick FORWARD, aileron AWAY from wind.',
-      'TAKE-OFF: Heels to floor. Smooth full power — 5-count before raising tail. Raise tail SLOWLY — abrupt = hard left swerve. Watch runway edges not centreline. More speed = smaller rudder inputs.',
-      'THREE-POINT LANDING: Level off 3ft (height of a person). Burn all energy. Fly only the tailwheel. Touchdown tailwheel first or simultaneous. Work stick back. Eyes 10 and 2 o\'clock.',
-      'WHEEL LANDING: Main wheels first. Forward stick on touchdown. Reduce power when directional control assured. Tail comes down as speed bleeds.',
-      'TAIL-LOW METHOD: Level off 1-2ft with little power. Wait for ground. Contact → stick FORWARD. Do not hold tail up too long. Good for rougher strips and gusty headwind.',
-      'CROSSWIND — CRAB METHOD: Crab into wind. Land on upwind main. Stick forward on touchdown. Windward side runway alignment.',
-      'GROUNDLOOP PREVENTION — XPLORER SPECIFIC: Rudder → Brake → Throttle (EXTREME CAUTION 135hp — use sparingly or not at all) → Aileron into swerve.',
-      'MASEKE STRIP: Build progressively. Power lines on final — red balls — steeper approach. Power lines departure end — VX 47 kts critical. Not a Day 1 strip.',
-      'BUSH STRIP ASSESSMENT — SUITABL: Surface · Undershoot · Into wind · Touchdown point · Adequate length · Barriers · Landing direction.',
-      'APPROACH SPEEDS: 60 kts @ 5° flap normal. 50-55 kts @ 8-12° over the fence. Glide: 65-67 kts. Sideslip adds 500-700 fpm.',
-    ],
-    activity:'✏️ Without looking, describe your full Maseke approach from 5nm to stopped. Speeds, flap settings, radio calls, strip assessment criteria. Then compare to this module.',
-    scenario:'Final at Maseke. High and fast — 70 kts at 200ft with 5° flap. Power lines ahead marked with red balls. Go-around possible but tight.',
-    reviewQ:'Go-around or land? If landing — which technique? Specific risks? If going around — procedure and minimum altitude needed?',
-    quiz:[
-      { scenario:'Take-off roll at Maseke. Aircraft begins swinging left at approximately 30 kts.', q:'Correct response in order:', opts:['Full left aileron, power off, right brake','Right rudder first, right brake if needed, extreme caution with throttle (135hp), aileron into swerve','Close throttle immediately, steer with brakes only','Continue — swing will self-correct as speed increases'], correct:1, exp:'Groundloop prevention on ZU-IZU: Rudder first, brake second. Throttle with EXTREME caution — 135hp is powerful enough to reinforce the swing. Aileron into swerve last. At 30 kts you have rudder authority — use it.', poh:'Tailwheel Notes: Groundloop prevention — Xplorer specific' },
-      { scenario:null, q:'SUITABL assessment — what does B stand for?', opts:['Brakes — test before approach','Barriers — obstacles in approach and departure paths','Base leg — check before turning final','Boundary — confirm strip boundary clear'], correct:1, exp:'SUITABL: Surface · Undershoot · Into wind · Touchdown point · Adequate length · Barriers · Landing direction. Barriers covers all obstacles — trees, power lines, fences, terrain — in approach and departure paths. At Maseke the power lines at both ends are exactly what SUITABL is designed to catch.', poh:'Bush strip assessment framework' },
-      { scenario:null, q:'On a wheel landing at Maseke the aircraft bounces. Immediate correct action:', opts:['Hold back stick firmly to prevent nose drop','Apply brakes immediately','Go-around — full power, raise flap at positive rate of climb','Reduce power and let bounce settle'], correct:2, exp:'Bounced landing = go-around. A bounce means the energy is wrong. Adding full power and going around is always safer than attempting to re-land from an unstable attitude. Note: anticipate nose-up pitch tendency at full power if trimmed nose-up.', poh:'Tailwheel Notes: Wheel landing — bounced: go-around' },
-    ]
-  },
-  {
-    id:'I', phase:'Phase 2 — Mobile', title:'Aviation You Tend To Forget',
-    subtitle:'The subtle killers. The things that do not announce themselves.',
-    objective:'Refresh the human factors, physiological, and aerodynamic awareness topics that atrophy without regular flying.',
-    topics:[
-      'SPATIAL DISORIENTATION: The vestibular system lies in cloud. The leans. Graveyard spiral. Trust the G3X attitude indicator. Never trust your seat of your pants in low vis.',
-      'HYPOXIA: Service ceiling 12,000ft. Symptoms: euphoria, confusion, tingling. Insidious. O2 recommended above 10,000ft.',
-      'WAKE TURBULENCE: Avoid behind and below heavy aircraft. Vortices sink and drift downwind. FAHS commercial traffic awareness at FAHT.',
-      'VISUAL ILLUSIONS: Narrow runway = feels high → land short. Wide runway = feels low → overshoot. Upslope = feels high → land short. Downslope = feels low → overshoot.',
-      'RUNWAY ILLUSIONS AT MASEKE: Short strips, narrow, tree-lined. Trust your approach speed — not your visual impression.',
-      'FATIGUE: Kills slowly. Decision-making degrades first — before you notice it. Then vigilance. Motor skills last. Fatigued = do not fly.',
-      'STALL AWARENESS: Any speed, any attitude. In a 60° bank VS × 1.41. In 45° bank VS × 1.19. ZU-IZU buffets ~5 kts before stall.',
-      'NO CARB ICE ON ZU-IZU: KFA 912 ULS-ST is turbocharged. No carburettor, no carb ice, no carb heat. It does not exist on this aircraft.',
-      'DENSITY ALTITUDE: Performance altitude. High DA = longer T/O, reduced ROC, higher true airspeed at same IAS. Compute before every Maseke summer departure.',
-      'LOSS OF CONTROL: Leading cause of fatal GA accidents. Low level + in a turn + distracted = fatal combination. The Killing Zone documents this.',
-    ],
-    activity:'🧠 Read "The Killing Zone" chapter on LOC accidents in the 50-500hr band. Then honestly assess: which of those biases apply to your operation at Maseke?',
-    scenario:'3 hrs surveillance in hot conditions. Difficult passenger. One more transect requested. Light is perfect. The temptation is strong.',
-    reviewQ:'Your decision and the factors driving it. What does fatigue do to pilot performance specifically? What would a professional test pilot do?',
-    quiz:[
-      { scenario:'45° bank turn at 60 kts over Maseke at 300ft AGL. Distracted by something on the ground.', q:'Stall speed in this configuration and your margin:', opts:['38 kts — same as wings-level','Approximately 45 kts (VS × 1.19). At 60 kts your margin is only 15 kts — at 300ft AGL.','35 kts — flaps increase margin in turns','45 kts — bank angle has minimal effect'], correct:1, exp:'45° bank = load factor 1.41G = stall speed VS × √1.41 = 38 × 1.19 ≈ 45 kts. At 300ft AGL with 15 kts margin and an active distraction — this is exactly how fatal accidents happen. POH: average height loss during stall testing 0-300ft.', poh:'POH Ch2: Stall behaviour — height loss 0-300ft' },
-      { scenario:null, q:'You feel buffet in a climbing turn. Immediate action:', opts:['Hold attitude and add power to fly through','Reduce angle of attack by releasing back pressure, level wings with rudder, regain airspeed, retract flap as speed increases','Push nose sharply down more than 30°','Apply full aileron to level wings'], correct:1, exp:'POH Ch2: Reduce angle of attack first — release back pressure. Level wings with RUDDER not aileron (aileron increases AoA on lowered wing). Regain airspeed. Retract flap as speed increases. Do not push more than 30° — usually 5-20° sufficient.', poh:'POH Ch2: Stall behaviour and recovery' },
-      { scenario:null, q:'Fatigue research tells you about your own in-flight self-assessment:', opts:['If you feel fine you are fine — trust self-assessment','Fatigue impairs self-assessment ability. Fatigued pilots consistently rate performance better than actual. Decision-making is first faculty to degrade.','One more pass is manageable with experience','Coffee restores performance adequately'], correct:1, exp:'Aviation fatigue research: fatigued individuals are poor judges of own fatigue. Decision-making degrades before vigilance and motor skills — you will make a bad decision while feeling capable. Pre-determined fatigue limits beat in-the-moment self-assessment every time.', poh:'Good Airmanship — Fatigue and self-assessment' },
-    ]
-  },
-  {
-    id:'J', phase:'Phase 2 — Mobile', title:'Good Airmanship & Decision Making',
-    subtitle:'The things that separate pilots who last from pilots who do not.',
-    objective:'Internalise the decision-making frameworks professionals use. These cannot be memorised — they must be understood until they become instinct.',
-    topics:[
-      'THREAT & ERROR MANAGEMENT (TEM): Identify threats before errors. Errors before incidents. Three lines: avoid → trap → mitigate.',
-      'GET-HOME-ITIS: The silent killer. Mission pressure, passenger expectations, sunk cost. The aircraft does not know how important the mission is.',
-      'PERSONAL MINIMUMS: Set them before you need them. Write them down. Never renegotiate in the air. Visibility, cloud base, wind, DA, fuel — decide on the ground.',
-      'STERILE COCKPIT: Below 500ft AGL — no non-essential communication. No passenger questions. No radio chat. Full attention to flying. Enforce it professionally.',
-      'POST-FLIGHT DEBRIEF: After every flight — 3 sentences. What went well. What I would do differently. One thing to drill before next flight.',
-      'CONTINUE-OR-TURN-BACK: Make this decision at a defined point before departure. If X happens, I turn back. Stick to it.',
-      'PASSENGER MANAGEMENT: Brief them fully. Manage expectations. Never let a passenger influence a safety decision.',
-      'LOW LEVEL MINDSET: Every low level flight demands higher currency. Faster decisions, less time for error recovery, terrain rises to meet you.',
-      'STICK AND RUDDER: Understand what the aircraft is actually doing aerodynamically. Langewiesche. A pilot who understands can adapt to any situation.',
-      'THE KILLING ZONE: 50-350 hr pilots have the highest accident rate. Overconfidence + fading training + increasing complexity. Know which phase you are in.',
-      'FUEL DISCIPLINE: Land with a defined minimum — 20L. Non-negotiable. Plan it before departure. Never renegotiate because the mission ran long.',
-    ],
-    activity:'📖 Write your 3-sentence post-flight debrief for the last flight you can clearly remember. Start the habit today — every flight from now on.',
-    scenario:'30 min into Maseke surveillance. Weather deteriorated — 4km visibility and dropping. Cloud base 1500ft. 20nm from FAHT. Ranger asking for another 20 min.',
-    reviewQ:'Decision? TEM walkthrough — threats, errors, mitigation. At what point did this scenario become a no-go?',
-    quiz:[
-      { scenario:'Ranger calls you on radio during low-level surveillance run at 300ft AGL asking for poacher position update.', q:'Correct response:', opts:['Answer immediately — information is operationally critical','Acknowledge briefly, climb to safe altitude, then respond — sterile cockpit at 300ft AGL is non-negotiable','Ignore the call entirely','Have passenger handle radio while you fly'], correct:1, exp:'Sterile cockpit below 500ft AGL. A radio exchange at 300ft in bush requires attention you cannot give. Acknowledge, climb to safe height, then communicate. The operational information is not worth the risk.', poh:'Good Airmanship — Sterile cockpit below 500ft' },
-      { scenario:null, q:'You planned to land with 20L minimum. Mission ran long — you estimate landing with 15L. Airfield 10 minutes away. Correct action:', opts:['Continue — 15L adequate for 10 min','Continue but declare fuel concern to AFIS','Your personal minimum is 20L — set for this reason. Divert to nearest suitable or land immediately. Do not renegotiate your own limits.','5L variance is acceptable'], correct:2, exp:'Personal minimums exist precisely for this moment. The temptation to renegotiate is always strongest when stakes feel low. "Just 10 more minutes." This decision has preceded every fuel exhaustion accident. Your limit is your limit.', poh:'Good Airmanship — Personal minimums' },
-      { scenario:null, q:'"The Killing Zone" identifies the highest accident rate in which pilot experience band?', opts:['0-50 hours — student pilots','50-350 hours — overconfident with fading training','500-1000 hours — complacency','1000+ hours — high risk tolerance'], correct:1, exp:'Craig\'s research: 50-350 hour band has the highest accident rate. Enough experience to be confident, not enough to have encountered true limits. Recent training is fading. Complexity increasing. Precisely the zone to be most vigilant.', poh:'The Killing Zone — Craig' },
-    ]
-  },
-  {
-    id:'K', phase:'Phase 2 — Mobile', title:'Radio Fluency — FAHT & Maseke',
-    subtitle:'Spoken aloud. Every time. Radio skills fade without practice.',
-    objective:'Fluent, professional, instinctive radio for all phases of FAHT and Maseke operations. Speak every call aloud during this module.',
-    topics:[
-      'FAHT TAXI: "Hoedspruit AFIS, ZU-IZU, [position], request taxi [runway], [intentions]."',
-      'FAHT BACKTRACK: "Hoedspruit AFIS, ZU-IZU, backtracking runway [XX], [direction]."',
-      'FAHT LINING UP: "Hoedspruit AFIS, ZU-IZU, lining up runway [XX]."',
-      'FAHT DEPARTURE: "Hoedspruit AFIS, ZU-IZU, departing runway [XX], [direction], climbing [altitude]."',
-      'FAHT JOINING: "Hoedspruit AFIS, ZU-IZU, [position], [altitude], inbound for landing, request joining."',
-      'FAHT DOWNWIND: "ZU-IZU, downwind runway [XX], [touch-and-go / full stop]."',
-      'FAHT FINAL: "ZU-IZU, final runway [XX]."',
-      'FAHT CLEAR: "ZU-IZU, clear runway [XX], vacating to [apron/hangar]."',
-      'MASEKE 10nm: "Maseke traffic, ZU-IZU, 10 miles [direction], descending for low level surveillance, Maseke."',
-      'MASEKE OPS: "Maseke traffic, ZU-IZU, operating low level [area] at [altitude], on frequency until [time]."',
-      'MASEKE DEPARTURE: "Maseke traffic, ZU-IZU, departing [direction], climbing [altitude], Maseke."',
-      'MAYDAY: "MAYDAY MAYDAY MAYDAY — ZU-IZU — [position] — [nature] — [souls] — [intentions] — ZU-IZU."',
-      'PAN-PAN: "PAN-PAN PAN-PAN PAN-PAN — ZU-IZU — [position] — [nature] — [souls] — [intentions] — ZU-IZU."',
-    ],
-    activity:'🎙 Speak every call above out loud now. Then do the complete FAHT circuit in real time. Then do the Maseke blind broadcast sequence. Record yourself and listen back.',
-    scenario:'Inbound to FAHT from Maseke at 2500ft. Contact AFIS. Helicopter working circuit. You have a precautionary fuel state — not an emergency.',
-    reviewQ:'Write and speak the exact calls from first AFIS contact to landing. How do you communicate fuel preference without declaring a full emergency?',
-    quiz:[
-      { scenario:null, q:'Departing FAHT runway 05, north-east to Maseke, climbing 2500ft. Departure call:', opts:['"ZU-IZU, departure."','"Hoedspruit AFIS, ZU-IZU, departing runway zero five, tracking north-east towards Maseke, climbing two thousand five hundred feet."','"ZU-IZU, taking off runway zero five."','"Hoedspruit AFIS, ZU-IZU, airborne."'], correct:1, exp:'Full departure call: callsign, runway, direction, altitude. Allows AFIS to pass traffic information to others. Brevity is good — not at the expense of essential information.', poh:'SA VFR Radio Procedures — Departure call' },
-      { scenario:null, q:'Difference between MAYDAY and PAN-PAN:', opts:['MAYDAY engine problems only, PAN-PAN all others','MAYDAY = grave and imminent danger requiring immediate assistance. PAN-PAN = urgency, serious but not yet life-threatening.','Interchangeable — use whichever you remember','PAN-PAN mechanical, MAYDAY medical only'], correct:1, exp:'MAYDAY: grave and imminent danger. PAN-PAN: urgent but not yet life-threatening. Fuel concern with 15+ min fuel = PAN-PAN. Engine stopped = MAYDAY.', poh:'ICAO Annex 10 — Emergency communications' },
-      { scenario:'Low level over Maseke. Another aircraft calls the Maseke frequency.', q:'Information you immediately give:', opts:['Callsign only','Callsign, current position, altitude AGL, direction of operation, estimated time on frequency','Switch to FAHT AFIS','No call — they can see you visually'], correct:1, exp:'At low level in bush, situational awareness between aircraft is entirely radio-dependent. Give everything needed for a mental picture: who, where, how high, which direction, for how long. Professional bush radio discipline.', poh:'Good Airmanship — Radio in shared airspace' },
-    ]
-  },
-  {
-    id:'L', phase:'Phase 2 — Mobile', title:'Surveillance & Anti-Poaching Ops — Maseke',
-    subtitle:'The mission ZU-IZU is built for. Only after full comfort with the aircraft.',
-    objective:'Understand operational principles of aerial surveillance over Maseke. Theory first — apply only when fully current.',
-    topics:[
-      'PREREQUISITE: Full currency and comfort on ZU-IZU before low-level surveillance. The aircraft demands full attention. Surveillance is secondary.',
-      'SCAN PATTERNS: Parallel track (transects). Grid for systematic coverage. Contour along terrain features. Always pre-planned — never improvised in the air.',
-      'ALTITUDE: Higher = more coverage, less detail, less risk. Lower = more detail, more risk. Maseke ops: 300-500ft AGL typical. Never below 200ft AGL in level flight.',
-      'COMM WITH GROUND TEAM: Pre-brief frequencies, reporting format, authentication. Position reports in grid refs or known landmarks.',
-      'TASK SEPARATION: Observer manages observation. Pilot manages aircraft. Observer does not fly. Pilot does not observe.',
-      'FATIGUE IN SURVEILLANCE: Monotonous scanning induces fatigue faster than normal flying. Set time limits. Land before fatigue affects flying.',
-      'POACHING REPORT FORMAT: Grid reference · Direction of travel · Number of individuals · Vehicle or foot · Vegetation density.',
-      'SECURITY DISCIPLINE: Callsign discipline. Position reporting discipline — limit specifics on open frequencies near active incidents.',
-      'WILDLIFE HAZARD: Birds at low level. Large mammals on or near Maseke strips. Low pass to clear strip before landing if any doubt.',
-      'POST-MISSION DEBRIEF: GPS track log. Observation notes. Fuel used. Airspace events. Snags. Always.',
-    ],
-    activity:'✏️ Plan a simulated 45-minute surveillance transect over Maseke from FAHT. Include: departure, transit altitude, entry, transect pattern, altitude, exit, return, fuel checks, all radio calls. Write in full.',
-    scenario:'20 min into surveillance at 400ft AGL. Ranger reports suspicious activity 3km west under dense canopy. Asks you to descend to 150ft for a closer look.',
-    reviewQ:'Your response. What governs your minimum altitude? The risk/reward calculation? How do you communicate your decision to the ranger?',
-    quiz:[
-      { scenario:null, q:'Observer wants to circle a point of interest at 200ft AGL in a 45° bank. Stall speed and assessment:', opts:['38 kts — wings-level VS always applies','Approximately 45 kts in 45° bank (VS × 1.19). At 200ft AGL with zero recovery altitude — maximum caution and full currency required.','35 kts — flaps reduce stall speed in turns','50 kts — bank angle doubles stall speed'], correct:1, exp:'45° bank = 1.41G = VS × 1.19 = 38 × 1.19 ≈ 45 kts. At 200ft AGL you have effectively zero stall recovery time. This is where low-level surveillance becomes genuinely lethal. Maintain adequate margins. If not fully current — do not do this.', poh:'POH Ch2: Stall speeds and load factors' },
-      { scenario:null, q:'During surveillance flight the observer becomes excited and grabs your arm. Immediate action:', opts:['Look where they are pointing to assess sighting','Firmly and calmly: "Do not touch me" — return full attention to flying','Hand control to observer temporarily','Climb to safe altitude before responding'], correct:1, exp:'Pilot distraction at low level is a genuine threat. Observer must be briefed before flight: never touch pilot or controls. At low level, even a momentary distraction can be fatal. Firm, calm, immediate response.', poh:'Good Airmanship — Passenger management' },
-      { scenario:null, q:'After a surveillance flight the GPS track shows you transited closer to FAHS military zone than planned. What do you do?', opts:['Nothing — if nothing happened, no action needed','Log the deviation in flight folio. Review the track. If boundary was penetrated, proactive contact with FAHS. Add larger buffer on future flights.','Delete GPS track to avoid complications','Call FAHS immediately and declare the deviation'], correct:1, exp:'Professional airmanship means logging and learning from every deviation. The flight folio is the place. If a military boundary was penetrated, proactive contact with FAHS is correct. A larger track buffer prevents recurrence.', poh:'POH Ch8: Record keeping — flight folio mandatory entries' },
-    ]
-  },
+  }
 ];
 
-let current = 0;
-let completed = [];
-try { completed = JSON.parse(localStorage.getItem('zuizu_v2') || '[]'); } catch(e){}
-let quizStates = {};
-let openSections = {};
-let activeTab = 'plan';
+// ── STATE ─────────────────────────────────────────
+let state = {
+  streak: 0,
+  totalMastered: 0,
+  missionProgress: [0, 0, 0, 0],
+  masteredCards: [],
+  weakCards: [],
+  sessionCorrect: 0,
+};
 
-function save() { try { localStorage.setItem('zuizu_v2', JSON.stringify(completed)); } catch(e){} }
+try {
+  const saved = localStorage.getItem('zuizu_academy');
+  if (saved) state = {...state, ...JSON.parse(saved)};
+} catch(e) {}
 
-function showTab(t) {
-  activeTab = t;
-  ['plan','quiz','cheatsheet'].forEach((n,i) => {
-    document.querySelectorAll('.tab')[i].classList.toggle('active', n === t);
-    document.getElementById('tab-'+n).classList.toggle('active', n === t);
+function save() {
+  try { localStorage.setItem('zuizu_academy', JSON.stringify(state)); } catch(e) {}
+}
+
+// ── CURRENT DRILL STATE ───────────────────────────
+let drill = {
+  missionIdx: 0,
+  cards: [],
+  cardIdx: 0,
+  isFlipped: false,
+  timerInterval: null,
+  timerStart: null,
+  isWeak: false,
+};
+
+// ── HOME / MISSIONS ───────────────────────────────
+function updateHome() {
+  document.getElementById('streak-display').textContent = '🔥 ' + state.streak;
+  document.getElementById('total-display').textContent = state.totalMastered + ' cards mastered';
+
+  MISSIONS.forEach((m, i) => {
+    const card = document.getElementById('mission-' + i);
+    const fill = document.getElementById('m' + i + '-fill');
+    const count = document.getElementById('m' + i + '-count');
+    const prog = state.missionProgress[i] || 0;
+    const pct = Math.min(100, (prog / m.threshold) * 100);
+
+    fill.style.width = pct + '%';
+    count.textContent = prog + ' / ' + m.threshold + ' mastered';
+
+    // Unlock logic
+    const unlocked = i === 0 || (state.missionProgress[i-1] || 0) >= MISSIONS[i-1].threshold;
+    if (unlocked) {
+      card.classList.remove('locked');
+      if (prog >= m.threshold) {
+        card.classList.add('complete');
+        count.textContent = '✓ Phase Complete — ' + prog + ' mastered';
+      }
+    } else {
+      card.classList.add('locked');
+      count.textContent = '🔒 Complete Level ' + i + ' first';
+    }
   });
-  if (t === 'cheatsheet') renderCS();
-  if (t === 'quiz') renderQuiz();
 }
 
-function buildPicker() {
-  const p = document.getElementById('mod-picker');
-  p.innerHTML = '';
-  modules.forEach((m,i) => {
-    const done = completed.includes(m.id);
-    const el = document.createElement('div');
-    el.className = 'mod-pill' + (i===current?' active':'') + (done?' done':'');
-    el.textContent = 'Mod '+m.id;
-    el.onclick = () => { current=i; render(); };
-    p.appendChild(el);
+function startMission(idx) {
+  const unlocked = idx === 0 || (state.missionProgress[idx-1] || 0) >= MISSIONS[idx-1].threshold;
+  if (!unlocked) return;
+
+  const m = MISSIONS[idx];
+  drill.missionIdx = idx;
+  drill.isWeak = false;
+
+  // Build deck — missed cards appear more
+  let deck = [...m.cards];
+  state.weakCards.filter(id => m.cards.find(c => c.id === id)).forEach(id => {
+    const card = m.cards.find(c => c.id === id);
+    if (card) deck.push(card); // add extra copy
   });
-  const a = p.querySelector('.active');
-  if(a) a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  // Shuffle
+  deck = deck.sort(() => Math.random() - 0.5);
+  drill.cards = deck;
+  drill.cardIdx = 0;
+  drill.sessionCorrect = 0;
+  state.sessionCorrect = 0;
+
+  document.getElementById('cards-title').textContent = m.name;
+  document.getElementById('side-correct').textContent = '0';
+  document.getElementById('side-streak').textContent = state.streak;
+
+  showScreen('screen-cards');
+  renderCard();
+  updateHome();
 }
 
-function updateMeta() {
-  const m = modules[current];
-  const pct = Math.max(8,(current+1)/modules.length*100);
-  document.getElementById('progress-fill').style.width = pct+'%';
-  document.getElementById('phase-label').textContent = m.phase;
-  document.getElementById('mod-counter').textContent = 'Module '+m.id+' · '+completed.length+' completed';
-  document.getElementById('nav-counter').textContent = (current+1)+' / '+modules.length;
-  document.getElementById('btn-prev').disabled = current===0;
-  document.getElementById('btn-next').disabled = current===modules.length-1;
+function startWeakDrill() {
+  if (state.weakCards.length === 0) {
+    alert('No weak areas yet — complete some missions first.');
+    return;
+  }
+  const allCards = MISSIONS.flatMap(m => m.cards);
+  const weakDeck = state.weakCards
+    .map(id => allCards.find(c => c.id === id))
+    .filter(Boolean)
+    .sort(() => Math.random() - 0.5);
+
+  drill.missionIdx = -1;
+  drill.isWeak = true;
+  drill.cards = weakDeck;
+  drill.cardIdx = 0;
+  drill.sessionCorrect = 0;
+
+  document.getElementById('cards-title').textContent = '⚠ WEAK AREAS';
+  showScreen('screen-cards');
+  renderCard();
 }
 
-function toggle(id) {
-  openSections[id] = !openSections[id];
-  const b = document.getElementById('sb-'+id);
-  const a = document.getElementById('sa-'+id);
-  if(b) b.classList.toggle('hidden',!openSections[id]);
-  if(a) a.textContent = openSections[id]?'▲':'▼';
-}
-
-function sec(key,label,html,def=true) {
-  const id=key+'_'+current;
-  if(openSections[id]===undefined) openSections[id]=def;
-  const o=openSections[id];
-  return `<div class="section">
-    <div class="section-hdr" onclick="toggle('${id}')">${label}<span id="sa-${id}">${o?'▲':'▼'}</span></div>
-    <div class="section-body ${o?'':'hidden'}" id="sb-${id}">${html}</div>
-  </div>`;
-}
-
-function toggleDone(id) {
-  const i=completed.indexOf(id);
-  if(i===-1) completed.push(id); else completed.splice(i,1);
-  save(); render();
-}
-
-function render() {
-  const m=modules[current];
-  const done=completed.includes(m.id);
-
-  const topics = m.topics.map(t=>`<div class="topic-item"><div class="dot"></div><div class="topic-text">${t}</div></div>`).join('');
-  const scen = `<div class="scenario-box"><div class="scenario-label">⚠ Scenario</div><div class="scenario-text">${m.scenario}</div></div>`;
-  const rev  = `<div class="review-box"><div class="review-label">Review Question</div><div class="review-text">${m.reviewQ}</div></div>`;
-
-  document.getElementById('plan-content').innerHTML = `
-    <div class="mod-phase">${m.phase} · Module ${m.id}</div>
-    <div class="mod-title">${m.title}</div>
-    <div class="mod-subtitle">${m.subtitle}</div>
-    <button class="complete-btn ${done?'done':''}" onclick="toggleDone('${m.id}')">${done?'✓ Module Complete':'Mark as Complete'}</button>
-    <div class="plan-grid">
-      <div class="full-width">${sec('obj','Objective',`<p class="obj-text">${m.objective}</p>`)}</div>
-      <div class="full-width">${sec('topics','Core Content',topics)}</div>
-      <div>${sec('activity',"Today's Activity",`<div class="activity-text">${m.activity}</div>`,false)}</div>
-      <div>${sec('scen','Scenario & Review Question',scen+rev,false)}</div>
-    </div>`;
-
-  updateMeta(); buildPicker();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function renderQuiz() {
-  const m=modules[current];
-  if(!quizStates[current]) quizStates[current]={q:0,score:0,ans:[],done:false};
-  const s=quizStates[current];
-  const el=document.getElementById('quiz-content');
-
-  if(s.done){
-    el.innerHTML=`
-      <div class="mod-phase">Module ${m.id} · Results</div>
-      <div class="mod-title" style="margin-bottom:8px">${m.title}</div>
-      <div class="quiz-score">
-        <div class="score-num">${s.score}/${m.quiz.length}</div>
-        <p>${s.score===m.quiz.length?'🎯 Perfect. Drill complete.':s.score>=2?'✓ Good — review surprising explanations.':'Review module content and retry.'}</p>
-        <button class="quiz-restart" onclick="restartQ()">Restart Quiz</button>
-      </div>`;
+// ── RENDER CARD ───────────────────────────────────
+function renderCard() {
+  if (drill.cardIdx >= drill.cards.length) {
+    showComplete();
     return;
   }
 
-  const q=m.quiz[s.q];
-  const ans=s.ans[s.q];
-  const scen=q.scenario?`<div class="quiz-scenario">📍 ${q.scenario}</div>`:'';
-  const opts=q.opts.map((o,i)=>{
-    let cls='quiz-opt'; let dis='';
-    if(ans!==undefined){
-      dis='disabled';
-      if(i===q.correct) cls+=ans===i?' correct':' reveal';
-      else if(i===ans) cls+=' wrong';
-    }
-    return `<button class="${cls}" ${dis} onclick="ansQ(${i})">${o}</button>`;
-  }).join('');
-  const exp=ans!==undefined?`<div class="quiz-exp">${q.exp}<div class="quiz-poh">📖 ${q.poh}</div></div>`:'';
+  const card = drill.cards[drill.cardIdx];
+  const total = drill.cards.length;
+  const pct = (drill.cardIdx / total) * 100;
 
-  el.innerHTML=`
-    <div class="mod-phase">Module ${m.id} · Quiz</div>
-    <div class="mod-title" style="font-size:var(--fs-lg);margin-bottom:14px">${m.title}</div>
-    <div class="quiz-wrap">
-      <div class="quiz-q-num">Question ${s.q+1} of ${m.quiz.length}</div>
-      ${scen}
-      <div class="quiz-q">${q.q}</div>
-      <div class="quiz-opts">${opts}</div>
-      ${exp}
-      <div class="quiz-nav">
-        <button onclick="qNav(-1)" ${s.q===0?'disabled':''}>← Back</button>
-        <span class="score-label">${s.score} correct</span>
-        <button onclick="qNav(1)" ${ans===undefined||s.q===m.quiz.length-1?'disabled':''}>Next →</button>
+  document.getElementById('cards-progress').style.width = pct + '%';
+  document.getElementById('cards-counter').textContent = (drill.cardIdx + 1) + ' / ' + total;
+  document.getElementById('streak-badge').textContent = '🔥 ' + state.streak + ' streak';
+
+  // Reset flip
+  drill.isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('conf-buttons').style.display = 'none';
+  document.getElementById('result-overlay').classList.remove('show','correct','wrong');
+
+  // FRONT
+  const typeClass = 'type-' + (card.type || 'speed');
+  document.getElementById('card-category').textContent = (card.type || 'SPEED').toUpperCase();
+  document.getElementById('card-type-badge').className = 'card-type-badge ' + typeClass;
+  document.getElementById('card-type-badge').textContent = (card.type || 'SPEED').toUpperCase();
+
+  // Check if photo card
+  const flashcardEl = document.getElementById('flashcard');
+  const frontFace = document.getElementById('card-front');
+  const backFace = document.getElementById('card-back');
+
+  if (card.img && IMGS[card.img] && IMGS[card.img] !== null) {
+    // Photo card front
+    frontFace.innerHTML = `
+      <div class="card-tag">
+        <span>${(card.type||'SCENARIO').toUpperCase()}</span>
+        <span class="card-type-badge type-scenario">SCENARIO</span>
       </div>
-      ${ans!==undefined&&s.q===m.quiz.length-1?`<button class="finish-btn" onclick="finQ()">See Results</button>`:''}
-    </div>`;
-}
+      <div class="photo-card" style="flex:1;margin:10px;border-radius:10px;overflow:hidden;position:relative;background:var(--navy4);display:flex;align-items:center;justify-content:center">
+        <div style="text-align:center;padding:20px"><div style="font-size:40px;margin-bottom:8px">📸</div><div style="font-size:11px;color:var(--text3);letter-spacing:2px">IMAGE: ${card.img}</div><div style="font-size:10px;color:var(--text3);margin-top:4px">Upload images to GitHub alongside index.html</div></div>
+        <img src="${IMGS[card.img]}" style="width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(8,14,20,0.95));padding:14px 12px 10px">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px">${card.hint||''}</div>
+          <div style="font-size:clamp(13px,2.5vw,18px);color:var(--gold2);font-weight:bold">${card.q}</div>
+          <div style="font-size:clamp(10px,1.6vw,13px);color:var(--text2);margin-top:3px">${card.front}</div>
+        </div>
+      </div>
+      <div style="padding:8px 12px;font-size:9px;color:var(--text3);letter-spacing:2px;text-align:center">TAP TO REVEAL</div>
+      <div class="timer-bar" id="timer-bar"></div>
+      <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+    `;
+  } else {
+    // Standard card front
+    const valClass = card.type === 'limit' ? 'card-value red' :
+                     card.type === 'proc' ? 'card-value green small' :
+                     card.type === 'scenario' ? 'card-value xsmall' : 'card-value';
 
-function ansQ(i){
-  const s=quizStates[current];
-  if(s.ans[s.q]!==undefined) return;
-  s.ans[s.q]=i;
-  if(i===modules[current].quiz[s.q].correct) s.score++;
-  renderQuiz();
-}
-function qNav(d){ quizStates[current].q=Math.max(0,quizStates[current].q+d); renderQuiz(); }
-function finQ(){ quizStates[current].done=true; renderQuiz(); }
-function restartQ(){ quizStates[current]={q:0,score:0,ans:[],done:false}; renderQuiz(); }
+    frontFace.innerHTML = `
+      <div class="card-tag">
+        <span id="card-category">${(card.type||'SPEED').toUpperCase()}</span>
+        <span class="card-type-badge ${typeClass}" id="card-type-badge">${(card.type||'SPEED').toUpperCase()}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-question">${card.q}</div>
+        <div class="${valClass}">${card.front || '?'}</div>
+        <div class="card-hint">${card.hint || ''}</div>
+        <div class="card-tap">TAP TO REVEAL</div>
+      </div>
+      <div class="timer-bar" id="timer-bar"></div>
+      <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+    `;
+  }
 
-function renderCS(){
-  document.getElementById('cheatsheet-content').innerHTML=`
-    <div class="mod-title" style="margin-bottom:4px">ZU-IZU Quick Reference</div>
-    <div class="mod-subtitle">Cover and recall. Hesitation = re-read that section.</div>
-    <div class="cs-grid">
-
-    <div class="cs-section"><div class="cs-title">⚡ Key Speeds — POH §2.2</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">VS clean</div><div class="cs-val">38 kts</div></div>
-      <div class="cs-row"><div class="cs-key">VS0 full flap</div><div class="cs-val">35 kts</div></div>
-      <div class="cs-row"><div class="cs-key">VX</div><div class="cs-val">47 kts — best angle</div></div>
-      <div class="cs-row"><div class="cs-key">VY</div><div class="cs-val">58 kts — best rate</div></div>
-      <div class="cs-row"><div class="cs-key">VR</div><div class="cs-val">42–45 kts rotate</div></div>
-      <div class="cs-row"><div class="cs-key">Best glide</div><div class="cs-val">67 kts · 8.5:1</div></div>
-      <div class="cs-row"><div class="cs-key">Normal climb</div><div class="cs-val">60 kts / 5500 RPM</div></div>
-      <div class="cs-row"><div class="cs-key">Approach</div><div class="cs-val">50–60 kts flap 5–12°</div></div>
-      <div class="cs-row"><div class="cs-key">VFE 50%</div><div class="cs-val">70 kts</div></div>
-      <div class="cs-row"><div class="cs-key">VFE 100%</div><div class="cs-val">65 kts</div></div>
-      <div class="cs-row"><div class="cs-key">Turbulence</div><div class="cs-val">85 kts penetration</div></div>
-      <div class="cs-row"><div class="cs-key">VNO</div><div class="cs-val">100 kts smooth air only</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">VNE</div><div class="cs-val cs-warn">113 kts NEVER EXCEED</div></div>
-      <div class="cs-row"><div class="cs-key">VA</div><div class="cs-val">84 kts no full deflection</div></div>
-      <div class="cs-row"><div class="cs-key">Door open</div><div class="cs-val">Max 70 kts</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">🔴 Engine Limits — POH §2.3</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">RPM idle</div><div class="cs-val">1400–1700</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">RPM max</div><div class="cs-val cs-warn">5800 — 5 MIN ONLY</div></div>
-      <div class="cs-row"><div class="cs-key">RPM cont</div><div class="cs-val">5500 max</div></div>
-      <div class="cs-row"><div class="cs-key">Oil press</div><div class="cs-val">0.8 min · 2–5 normal · 7 max</div></div>
-      <div class="cs-row"><div class="cs-key">Oil temp</div><div class="cs-val">50 min · 90–110 normal · 130 max</div></div>
-      <div class="cs-row"><div class="cs-key">CHT</div><div class="cs-val">75–120 normal · 130 max</div></div>
-      <div class="cs-row"><div class="cs-key">Water temp</div><div class="cs-val">50–110 normal · 120 max</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">EGT turbo</div><div class="cs-val cs-warn">920°C max</div></div>
-      <div class="cs-row"><div class="cs-key">Oil press rise</div><div class="cs-val">Within 10 sec of start</div></div>
-      <div class="cs-row"><div class="cs-key">Run-up temp</div><div class="cs-val">Oil ≥50°C before run-up</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">⛽ Fuel System</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">Wing tanks</div><div class="cs-val">50L each · 100L usable level</div></div>
-      <div class="cs-row"><div class="cs-key">Header</div><div class="cs-val">5L — buffer for low fuel/nose-low/slip</div></div>
-      <div class="cs-row"><div class="cs-key">Selectors</div><div class="cs-val">ONE closed ground · BOTH open T/O+landing</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">Sideslip</div><div class="cs-val cs-warn">BOTH open before any sideslip</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">Warning light</div><div class="cs-val cs-warn">~8 min · Level wings · reduce power · check valves</div></div>
-      <div class="cs-row"><div class="cs-key">Fuel sample</div><div class="cs-val">Below header tank right side — every flight</div></div>
-      <div class="cs-row"><div class="cs-key">Burn rate</div><div class="cs-val">16–25 L/hr · 5 hrs endurance @ 20 L/hr</div></div>
-      <div class="cs-row"><div class="cs-key">Fuel type</div><div class="cs-val">Mogas 95 / Avgas 100LL</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">📻 Mnemonics</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">Run-up</div><div class="cs-val">T-T-T-T · M · P-P · G · F-F · I · H · E</div></div>
-      <div class="cs-row"><div class="cs-key">Before T/O</div><div class="cs-val">Too Many Pilots Forget Good Habits Incredibly Easily</div></div>
-      <div class="cs-row"><div class="cs-key">After T/O</div><div class="cs-val">B-U-T-P-M-F-F-E</div></div>
-      <div class="cs-row"><div class="cs-key">Downwind</div><div class="cs-val">B-U-M-P-F-F-H</div></div>
-      <div class="cs-row"><div class="cs-key">Upper air</div><div class="cs-val">H-A-S-E-L</div></div>
-      <div class="cs-row"><div class="cs-key">Shutdown</div><div class="cs-val">Radio→EFIS→GPS→Mags→Key→Electrics→Fuel→Prop</div></div>
-      <div class="cs-row"><div class="cs-key">Strip assess</div><div class="cs-val">SUITABL</div></div>
-      <div class="cs-row"><div class="cs-key">Mag check</div><div class="cs-val">4000 RPM · Drop ≤300 · Diff ≤150</div></div>
-    </div></div>
-
-    <div class="cs-section cs-full"><div class="cs-title">🚨 Emergency Actions</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">Before rotation</div><div class="cs-val">Close power · Directional control · Brake · Clear runway</div></div>
-      <div class="cs-row"><div class="cs-key">After — runway</div><div class="cs-val">Close power · Lower nose · Flaps as req · Land ahead · Brake · Clear</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">After — no runway</div><div class="cs-val cs-warn">Lower nose · 67 kts · 30° arc · No turnback · Flaps when assured · Keep flying</div></div>
-      <div class="cs-row"><div class="cs-key">Engine fire flight</div><div class="cs-val">Mags off · Shut-off closed · Selectors closed · Power off · Descend · Sideslip</div></div>
-      <div class="cs-row"><div class="cs-key">Go-around</div><div class="cs-val">Full power · Right rudder · Positive climb · Flap retract · 50→60 kts</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">G/A WARNING</div><div class="cs-val cs-warn">Full nose-up trim + full power = pitch-up. Push forward immediately.</div></div>
-      <div class="cs-row"><div class="cs-key">Door open</div><div class="cs-val">Safe · Max 70 kts · Pull handle toward you</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">📡 Frequencies & Area</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">FAHT AFIS</div><div class="cs-val">Confirm via AIP/NOTAM</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">FAHS Military</div><div class="cs-val cs-warn">Adjacent — coordinate before entry</div></div>
-      <div class="cs-row"><div class="cs-key">FAGE</div><div class="cs-val">Eastgate — commercial traffic</div></div>
-      <div class="cs-row"><div class="cs-key">FAPH</div><div class="cs-val">Phalaborwa — north, KNP</div></div>
-      <div class="cs-row"><div class="cs-key">FATZ</div><div class="cs-val">Tzaneen — south, Class D</div></div>
-      <div class="cs-row"><div class="cs-key">Emergency</div><div class="cs-val">121.5 MHz — always monitor</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">🌩 Weather & Personal Limits</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">Class G legal</div><div class="cs-val">1500m vis · Clear of cloud by day</div></div>
-      <div class="cs-row"><div class="cs-key">Personal min</div><div class="cs-val">5km+ · 2000ft+ AGL · Wind &lt;15 kts · No Cb 30nm · DA &lt;4000ft</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">Limpopo summer</div><div class="cs-val cs-warn">Land by 1400 hrs. CB from midday.</div></div>
-      <div class="cs-row"><div class="cs-key">Tools</div><div class="cs-val">SAWS · Windy.com · Meteoblue · AFIS local</div></div>
-      <div class="cs-row"><div class="cs-key cs-warn">Fuel minimum</div><div class="cs-val cs-warn">Land with 20L. Non-negotiable.</div></div>
-    </div></div>
-
-    <div class="cs-section"><div class="cs-title">✈ Weights & Performance</div><div class="cs-body">
-      <div class="cs-row"><div class="cs-key">MTOW</div><div class="cs-val">600 kg</div></div>
-      <div class="cs-row"><div class="cs-key">Empty</div><div class="cs-val">385 kg</div></div>
-      <div class="cs-row"><div class="cs-key">Useful load</div><div class="cs-val">215 kg</div></div>
-      <div class="cs-row"><div class="cs-key">Baggage</div><div class="cs-val">30 kg max (C of G)</div></div>
-      <div class="cs-row"><div class="cs-key">T/O roll ISA</div><div class="cs-val">80 m</div></div>
-      <div class="cs-row"><div class="cs-key">ROC</div><div class="cs-val">1250 fpm</div></div>
-      <div class="cs-row"><div class="cs-key">Glide ratio</div><div class="cs-val">8.5:1 @ 67 kts</div></div>
-      <div class="cs-row"><div class="cs-key">Load factors</div><div class="cs-val">UP: +4G/-2G · DOWN: +2G</div></div>
-    </div></div>
-
+  // BACK
+  const ansClass = card.type === 'limit' ? 'card-answer-main red' :
+                   card.type === 'proc' ? 'card-answer-main' :
+                   'card-answer-main';
+  backFace.innerHTML = `
+    <div class="card-tag">
+      <span>${(card.type||'SPEED').toUpperCase()}</span>
+      <span class="card-type-badge ${typeClass}">${(card.type||'SPEED').toUpperCase()}</span>
     </div>
-    <div style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:4px;font-size:var(--fs-xs);color:var(--text3);line-height:1.7;font-family:'Courier New',monospace;">
-      All limits and procedures — ZU-IZU POH SN: 025-D-23 EXUL · SACAA Accepted 03 July 2023 · No transponder · No carb heat — turbocharged engine
-    </div>`;
+    <div class="card-body">
+      <div class="card-answer-label">ANSWER</div>
+      <div class="${ansClass}" style="white-space:pre-line">${card.answer}</div>
+      <div class="card-answer-sub">${card.sub || ''}</div>
+      <div class="card-poh">${card.poh || ''}</div>
+    </div>
+  `;
+
+  // Start timer
+  startTimer();
 }
 
-function go(d){ current=Math.max(0,Math.min(modules.length-1,current+d)); if(activeTab==='plan') render(); else if(activeTab==='quiz') renderQuiz(); }
+function startTimer() {
+  if (drill.timerInterval) clearInterval(drill.timerInterval);
+  const bar = document.getElementById('timer-bar');
+  if (!bar) return;
 
-render();
+  const TOTAL = 5000; // 5 seconds
+  const start = Date.now();
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(1)';
+  bar.style.background = 'var(--gold)';
+
+  drill.timerInterval = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, 1 - elapsed / TOTAL);
+    const bar2 = document.getElementById('timer-bar');
+    if (!bar2) { clearInterval(drill.timerInterval); return; }
+    bar2.style.transition = 'none';
+    bar2.style.transform = `scaleX(${remaining})`;
+
+    if (elapsed > 3000) bar2.style.background = 'var(--amber)';
+    if (elapsed > 4500) bar2.style.background = 'var(--red)';
+
+    if (elapsed >= TOTAL) {
+      clearInterval(drill.timerInterval);
+      // Auto-flip if not already
+      if (!drill.isFlipped) {
+        flipCard();
+        // Mark as hesitation
+        const bar3 = document.getElementById('timer-bar');
+        if (bar3) bar3.style.background = 'var(--amber)';
+      }
+    }
+  }, 50);
+}
+
+function flipCard() {
+  if (drill.isFlipped) return;
+  drill.isFlipped = true;
+  clearInterval(drill.timerInterval);
+
+  document.getElementById('flashcard').classList.add('flipped');
+  document.getElementById('conf-buttons').style.display = 'flex';
+
+  // Check elapsed time for amber
+  const elapsed = Date.now() - (drill.timerStart || Date.now());
+}
+
+function rate(conf) {
+  clearInterval(drill.timerInterval);
+  const card = drill.cards[drill.cardIdx];
+
+  if (conf === 'know') {
+    state.streak++;
+    state.sessionCorrect = (state.sessionCorrect || 0) + 1;
+    // Remove from weak list
+    state.weakCards = state.weakCards.filter(id => id !== card.id);
+    // Add to mastered
+    if (!state.masteredCards.includes(card.id)) {
+      state.masteredCards.push(card.id);
+      state.totalMastered++;
+      // Update mission progress
+      if (drill.missionIdx >= 0) {
+        const m = MISSIONS[drill.missionIdx];
+        const mastered = m.cards.filter(c => state.masteredCards.includes(c.id)).length;
+        state.missionProgress[drill.missionIdx] = mastered;
+      }
+    }
+    // Flash green
+    showResult(true);
+  } else if (conf === 'unsure') {
+    state.streak = Math.max(0, state.streak - 1);
+    // Add to weak if not already mastered
+    if (!state.weakCards.includes(card.id)) state.weakCards.push(card.id);
+    showResult(null);
+  } else {
+    state.streak = 0;
+    if (!state.weakCards.includes(card.id)) state.weakCards.push(card.id);
+    showResult(false);
+  }
+
+  save();
+  updateSidePanel();
+
+  setTimeout(() => {
+    drill.cardIdx++;
+    renderCard();
+  }, conf === 'missed' ? 600 : 400);
+}
+
+function showResult(correct) {
+  const overlay = document.getElementById('result-overlay');
+  const icon = document.getElementById('result-icon');
+  if (!overlay || !icon) return;
+
+  if (correct === true) {
+    overlay.className = 'result-overlay show correct';
+    icon.textContent = '✓';
+    document.getElementById('flashcard').classList.add('pulse-green');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-green'), 500);
+  } else if (correct === false) {
+    overlay.className = 'result-overlay show wrong';
+    icon.textContent = '✗';
+    document.getElementById('flashcard').classList.add('pulse-red');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-red'), 500);
+  } else {
+    document.getElementById('flashcard').classList.add('pulse-amber');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-amber'), 500);
+  }
+}
+
+function updateSidePanel() {
+  document.getElementById('side-correct').textContent = state.sessionCorrect || 0;
+  document.getElementById('side-streak').textContent = state.streak;
+
+  const weakEl = document.getElementById('weak-list');
+  if (state.weakCards.length === 0) {
+    weakEl.innerHTML = '<div style="font-size:9px;color:var(--text3)">None yet</div>';
+  } else {
+    const allCards = MISSIONS.flatMap(m => m.cards);
+    weakEl.innerHTML = state.weakCards.slice(-5).map(id => {
+      const c = allCards.find(x => x.id === id);
+      return `<div class="weak-item">${c ? c.q.substring(0,20) : id}</div>`;
+    }).join('');
+  }
+}
+
+function showComplete() {
+  clearInterval(drill.timerInterval);
+  const m = drill.missionIdx >= 0 ? MISSIONS[drill.missionIdx] : null;
+  const correct = state.sessionCorrect || 0;
+  const total = drill.cards.length;
+  const score = Math.round((correct / total) * 100);
+  const isLevelComplete = m && (state.missionProgress[drill.missionIdx] || 0) >= m.threshold;
+
+  document.getElementById('complete-icon').textContent = score >= 80 ? '🎯' : score >= 60 ? '✈️' : '📖';
+  document.getElementById('complete-title').textContent = isLevelComplete ? 'PHASE COMPLETE' : 'SESSION DONE';
+  document.getElementById('complete-sub').textContent = m ? (m.level + ' · ' + m.name) : 'WEAK AREA DRILL';
+  document.getElementById('complete-score').textContent = correct + '/' + total;
+
+  showScreen('screen-complete');
+  updateHome();
+  save();
+}
+
+function retryMission() {
+  startMission(drill.missionIdx >= 0 ? drill.missionIdx : 0);
+}
+
+// ── MODULES (DEEP READ) ───────────────────────────
+const MODULE_DATA = [
+  {title:'General Rules & Limits', level:'Level 1', topics:['MTOW 600kg · Empty 385kg · Useful load 215kg','VNE 113 kts · VNO 100 kts · VA 84 kts','Load factors: Flaps UP +4G/-2G · Flaps DOWN +2G','No aerobatics. No intentional spins. Max bank 60°.','No transponder fitted. No carb heat — turbocharged.'], scenario:'You are in a 45° bank at 90 kts when turbulence hits west of Maseke. What is your margin to VA and what do you do?'},
+  {title:'Fuel System', level:'Level 1', topics:['Wing tanks 50L each · Header tank 5L','Selectors: ONE closed ground · BOTH open T/O+landing','BOTH open before any sideslip — critical','Header warning: ~8 min · Level wings · reduce power · check valves','Fuel sample below header tank right side — every flight'], scenario:'Header light illuminates at 500ft over Maseke. You were flying ball-right, right tank only, for 20 min. Walk through your actions.'},
+  {title:'Taildragger Techniques', level:'Level 2', topics:['Stick BACK at all times on the ground with engine running','T/O: Heels down · 5-count before raising tail · Watch EDGES not centreline','Groundloop: Rudder → Brake → Throttle (EXTREME CAUTION 135hp) → Aileron','3-point: Burn all energy · fly only the tailwheel · work back stick','Wheel landing: Forward stick on touchdown · power off when controlled'], scenario:'On Maseke T/O roll the aircraft swings left at 30 kts. What is your response in exact sequence?'},
+  {title:'Emergency Procedures', level:'Level 2', topics:['Before rotation: Close power · directional control · brake · clear','After rotation/runway: Close power · lower nose · flaps as req · land ahead · brake · clear','After rotation/no runway: Lower nose · best glide · 30° arc · no turnback · flaps when assured · keep flying','Engine fire: Mags off · shut-off closed · selectors closed · power off · descend · sideslip','Go-around WARNING: full nose-up trim + full power = pitch-up. Push forward.'], scenario:'At 200ft after T/O from FAHT the engine loses significant power. Scrub ahead. Runway behind. Walk through your exact actions.'},
+  {title:'Weather & Go/No-Go', level:'Level 3', topics:['Class G legal: 1500m vis · clear of cloud by day','Personal minimums Maseke: 5km+ · 2000ft+ AGL · Wind <15 kts · No Cb 30nm · DA <4000ft','Limpopo summer: Land by 1400 hrs — CB development from midday','DA at FAHT 35°C afternoon: can reach 4500ft+','Tools: SAWS · Windy.com · Meteoblue · AFIS local'], scenario:'1345 hrs, January. CB 25nm west. Cloud base 3000ft. Vis 10km. Wind calm. 45-min Maseke mission. Go or no-go and why?'},
+  {title:'Radio — FAHT & Maseke', level:'Level 3', topics:['FAHT is uncontrolled AFIS — not a tower','FAHS military adjacent — coordinate before entering their zone','Maseke blind calls: 10nm · 5nm · final · clear','Sterile cockpit below 500ft AGL — no non-essential radio','MAYDAY: MAYDAY ×3 · callsign · position · nature · souls · intentions'], scenario:'Inbound FAHT, precautionary fuel state (not emergency), helicopter in circuit. Write and speak the exact calls from first AFIS contact to landing.'},
+  {title:'Good Airmanship', level:'Level 4', topics:['TEM: Identify threats before errors — errors before incidents','Get-home-itis: Mission is never worth more than aircraft and pilot','Sterile cockpit: below 500ft — no non-essential communication','Post-flight debrief: 3 sentences — every flight — no exceptions','Personal minimums: set on the ground, never renegotiate airborne','Fuel discipline: Land with 20L minimum — non-negotiable'], scenario:'3 hours surveillance, tired, difficult passenger, one more transect requested. The light is perfect. What is your decision and the factors driving it?'},
+  {title:'Maseke Strip Operations', level:'Level 4', topics:['SUITABL: Surface · Undershoot · Into wind · Touchdown point · Adequate length · Barriers · Landing direction','Power lines on final — marked red balls — steep approach required','Power lines on departure end — VX 47 kts discipline critical','Low pass to clear strip of wildlife before landing','Build up to Maseke progressively — not a Day 1 strip'], scenario:'On final at Maseke, high and fast at 70 kts, 200ft, power lines ahead with red balls. Go-around or land? If landing — technique? If going around — procedure?'},
+];
+
+function showModules() {
+  const grid = document.getElementById('mod-grid');
+  grid.innerHTML = MODULE_DATA.map((m, i) => `
+    <div class="mod-card" onclick="showModDetail(${i})">
+      <div class="mod-card-level">${m.level}</div>
+      <div class="mod-card-title">${m.title}</div>
+      <div class="mod-card-desc">${m.topics[0].substring(0,60)}...</div>
+    </div>
+  `).join('');
+  showScreen('screen-modules');
+}
+
+function showModDetail(idx) {
+  const m = MODULE_DATA[idx];
+  document.getElementById('moddetail-title').textContent = m.title;
+  document.getElementById('moddetail-content').innerHTML = `
+    <div class="mod-section">
+      <div class="mod-section-title">Core Content</div>
+      ${m.topics.map(t => `<div class="mod-topic"><div class="mod-bullet">·</div><div class="mod-topic-text">${t}</div></div>`).join('')}
+    </div>
+    <div class="mod-scenario">
+      <div class="mod-scenario-label">⚠ SCENARIO</div>
+      <div class="mod-scenario-text">${m.scenario}</div>
+    </div>
+  `;
+  showScreen('screen-moddetail');
+}
+
+// ── SCREEN MANAGEMENT ─────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-home') updateHome();
+  if (id === 'screen-cards') updateSidePanel();
+}
+
+function goHome() {
+  clearInterval(drill.timerInterval);
+  showScreen('screen-home');
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress?')) return;
+  state = {streak:0,totalMastered:0,missionProgress:[0,0,0,0],masteredCards:[],weakCards:[],sessionCorrect:0};
+  save();
+  updateHome();
+}
+
+// ── INIT ──────────────────────────────────────────
+updateHome();
 </script>
 </body>
 </html>
