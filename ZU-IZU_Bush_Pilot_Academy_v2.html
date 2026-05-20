@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="dark">
+<title>ZU-IZU Bush Pilot Academy</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark only;height:100%;overflow:hidden;font-size:18px}
+body{font-family:'Courier New',Courier,monospace;background:#080e14;color:#e8d8a0;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none}
+
+:root{
+  --gold:#e8b84b;
+  --gold2:#f5d070;
+  --gold3:#c8960c;
+  --amber:#e8a020;
+  --red:#e84040;
+  --red2:#ff6060;
+  --green:#40c870;
+  --green2:#20a050;
+  --dim:#4a4030;
+  --navy:#080e14;
+  --navy2:#0f1a24;
+  --navy3:#162030;
+  --navy4:#1e2c3e;
+  --text:#e8d8a0;
+  --text2:#a89870;
+  --text3:#6a5840;
+  --border:rgba(232,184,75,0.2);
+  --r:8px;
+}
+
+/* ── SCREEN MANAGER ─────────────────────────── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── MISSION SELECT SCREEN ──────────────────── */
+#screen-home{
+  background:var(--navy);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(232,184,75,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(232,100,20,0.03) 0%, transparent 60%);
+}
+.home-header{
+  padding:16px 24px 8px;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;
+}
+.home-title{font-size:clamp(16px,3vw,24px);color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+.home-sub{font-size:clamp(9px,1.5vw,12px);color:var(--text3);letter-spacing:2px;margin-top:2px}
+.home-stats{text-align:right;font-size:clamp(9px,1.4vw,11px);color:var(--text2)}
+.home-streak{color:var(--gold);font-size:clamp(14px,2vw,18px);display:block}
+
+.missions-grid{
+  flex:1;display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:1fr;
+  gap:12px;padding:16px 20px;
+  overflow:hidden;
+}
+.mission-card{
+  background:var(--navy2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:flex;flex-direction:column;
+  padding:16px;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.mission-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(232,184,75,0.05));
+  pointer-events:none;
+}
+.mission-card:active{transform:scale(0.97);background:var(--navy3)}
+.mission-card.locked{opacity:0.4;cursor:not-allowed}
+.mission-card.locked:active{transform:none}
+.mission-card.complete{border-color:var(--green2)}
+.mission-card.complete::after{
+  content:'✓';position:absolute;top:8px;right:10px;
+  color:var(--green);font-size:18px;
+}
+
+.mission-level{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.mission-name{font-size:clamp(16px,2.2vw,20px);color:var(--gold2);line-height:1.3;margin-bottom:8px;font-weight:bold}
+.mission-desc{font-size:clamp(12px,1.6vw,14px);color:var(--text2);line-height:1.5;flex:1}
+.mission-count{margin-top:10px;font-size:10px;color:var(--text3)}
+.mission-bar{height:3px;background:var(--navy4);border-radius:2px;margin-top:6px;overflow:hidden}
+.mission-fill{height:100%;border-radius:2px;background:var(--gold3);transition:width 0.4s}
+
+.home-footer{
+  padding:10px 24px;border-top:1px solid var(--border);
+  display:flex;gap:12px;flex-shrink:0;
+}
+.btn-secondary{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text2);border-radius:var(--r);
+  padding:8px 16px;font-family:inherit;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-secondary:active{background:var(--navy3);color:var(--gold)}
+
+/* ── FLASHCARD SCREEN ───────────────────────── */
+#screen-cards{background:var(--navy)}
+
+.cards-header{
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;background:var(--navy2);
+}
+.btn-back{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text2);border-radius:6px;
+  padding:6px 12px;font-family:inherit;font-size:10px;
+  letter-spacing:2px;cursor:pointer;white-space:nowrap;
+}
+.btn-back:active{background:var(--navy3)}
+.cards-title{font-size:clamp(10px,1.8vw,14px);color:var(--gold);letter-spacing:2px;flex:1}
+.cards-progress-wrap{flex:1;max-width:200px}
+.cards-progress-bar{height:4px;background:var(--navy4);border-radius:2px;overflow:hidden}
+.cards-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.3s}
+.cards-counter{font-size:10px;color:var(--text3);margin-top:3px;text-align:right}
+.streak-badge{
+  background:var(--navy3);border:1px solid var(--amber);
+  border-radius:20px;padding:4px 10px;
+  font-size:10px;color:var(--amber);white-space:nowrap;
+}
+
+.card-area{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:16px;gap:16px;overflow:hidden;
+}
+
+/* Main flashcard */
+.flashcard{
+  flex:1;max-width:600px;height:100%;max-height:340px;
+  position:relative;cursor:pointer;
+}
+.card-inner{
+  position:absolute;inset:0;
+  transition:transform 0.5s;
+  transform-style:preserve-3d;
+}
+.flashcard.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:16px;display:flex;flex-direction:column;
+  border:1px solid var(--border);overflow:hidden;
+}
+.card-front{background:var(--navy2)}
+.card-back{background:var(--navy3);transform:rotateY(180deg)}
+
+.card-tag{
+  padding:10px 16px 6px;
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.card-type-badge{
+  font-size:8px;letter-spacing:1px;padding:2px 8px;
+  border-radius:10px;
+}
+.type-speed{background:rgba(232,184,75,0.15);color:var(--gold)}
+.type-limit{background:rgba(232,64,64,0.15);color:var(--red2)}
+.type-proc{background:rgba(64,200,112,0.15);color:var(--green)}
+.type-sys{background:rgba(100,150,232,0.15);color:#8ab4f8}
+.type-scenario{background:rgba(200,100,232,0.15);color:#c87ae8}
+
+.card-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.card-question{font-size:clamp(15px,2.5vw,20px);color:var(--text2);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase}
+.card-value{font-size:clamp(32px,7vw,58px);color:var(--gold2);font-weight:bold;letter-spacing:2px;line-height:1.1}
+.card-value.red{color:var(--red2)}
+.card-value.green{color:var(--green)}
+.card-value.small{font-size:clamp(20px,3.5vw,32px)}
+.card-value.xsmall{font-size:clamp(16px,2.5vw,22px)}
+.card-hint{font-size:clamp(12px,1.8vw,14px);color:var(--text3);margin-top:8px;letter-spacing:1px}
+.card-tap{font-size:9px;letter-spacing:3px;color:var(--text3);margin-top:auto;padding-top:8px;opacity:0.6}
+
+.card-answer-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.card-answer-main{font-size:clamp(26px,5.5vw,46px);color:var(--gold2);font-weight:bold;line-height:1.2}
+.card-answer-main.red{color:var(--red2)}
+.card-answer-sub{font-size:clamp(13px,2vw,16px);color:var(--text2);margin-top:6px;line-height:1.5}
+.card-poh{font-size:9px;color:var(--text3);margin-top:10px;letter-spacing:1px}
+
+/* Image card */
+.card-img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.card-img-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(8,14,20,0.95));
+  padding:16px;border-radius:0 0 16px 16px;
+}
+
+/* Timer bar */
+.timer-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--gold);border-radius:0 0 16px 16px;
+  transform-origin:left;
+  transition:transform linear,background linear;
+}
+
+/* Right panel */
+.card-side-panel{
+  width:180px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:10px;height:100%;max-height:340px;
+}
+.side-card{
+  background:var(--navy2);border:1px solid var(--border);
+  border-radius:10px;padding:12px;
+  font-size:10px;
+}
+.side-label{color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-size:9px}
+.side-stat{color:var(--gold);font-size:20px;font-weight:bold}
+.side-sub{color:var(--text2);font-size:9px;margin-top:2px}
+
+.weak-list{display:flex;flex-direction:column;gap:4px}
+.weak-item{
+  background:var(--navy3);border-radius:5px;padding:5px 8px;
+  font-size:9px;color:var(--red2);display:flex;align-items:center;gap:6px;
+}
+.weak-item::before{content:'⚠';font-size:10px}
+
+/* Confidence buttons */
+.conf-buttons{
+  display:flex;gap:8px;padding:10px 16px;
+  flex-shrink:0;border-top:1px solid var(--border);
+  background:var(--navy2);
+}
+.conf-btn{
+  flex:1;padding:10px 8px;border-radius:var(--r);
+  font-family:inherit;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:1px solid;
+  transition:all 0.15s;
+}
+.conf-btn:active{transform:scale(0.96)}
+.conf-know{background:rgba(40,160,80,0.15);border-color:var(--green2);color:var(--green)}
+.conf-know:active{background:rgba(40,160,80,0.35)}
+.conf-unsure{background:rgba(232,160,32,0.15);border-color:var(--amber);color:var(--amber)}
+.conf-unsure:active{background:rgba(232,160,32,0.3)}
+.conf-missed{background:rgba(232,64,64,0.15);border-color:var(--red);color:var(--red2)}
+.conf-missed:active{background:rgba(232,64,64,0.3)}
+
+/* Result overlay */
+.result-overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;
+  transition:opacity 0.3s;border-radius:16px;
+}
+.result-overlay.show{opacity:1}
+.result-overlay.correct{background:rgba(40,160,80,0.25)}
+.result-overlay.wrong{background:rgba(232,64,64,0.2)}
+.result-icon{font-size:80px}
+
+/* ── COMPLETE SCREEN ────────────────────────── */
+#screen-complete{
+  background:var(--navy);
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;
+}
+#screen-complete.active{display:flex}
+.complete-icon{font-size:80px;margin-bottom:16px}
+.complete-title{font-size:clamp(20px,4vw,32px);color:var(--gold2);letter-spacing:3px;margin-bottom:8px}
+.complete-sub{font-size:clamp(11px,2vw,15px);color:var(--text2);margin-bottom:24px}
+.complete-score{font-size:clamp(36px,7vw,60px);color:var(--gold);font-weight:bold;margin-bottom:4px}
+.complete-score-label{font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:24px}
+.btn-primary{
+  background:var(--gold3);color:var(--navy);border:none;
+  border-radius:var(--r);padding:12px 32px;
+  font-family:inherit;font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;cursor:pointer;font-weight:bold;
+  transition:all 0.2s;margin:4px;
+}
+.btn-primary:active{transform:scale(0.97);background:var(--gold)}
+
+/* ── MODULES SCREEN ─────────────────────────── */
+#screen-modules{background:var(--navy);overflow-y:auto}
+.modules-header{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--navy2);z-index:10;
+  flex-shrink:0;
+}
+.mod-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;padding:16px;
+}
+.mod-card{
+  background:var(--navy2);border:1px solid var(--border);
+  border-radius:10px;padding:14px;cursor:pointer;
+  transition:all 0.2s;
+}
+.mod-card:active{background:var(--navy3)}
+.mod-card-level{font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px}
+.mod-card-title{font-size:clamp(14px,2.2vw,17px);color:var(--gold);margin-bottom:6px;line-height:1.3}
+.mod-card-desc{font-size:clamp(12px,1.6vw,14px);color:var(--text2);line-height:1.5}
+
+/* ── MODULE DETAIL ──────────────────────────── */
+#screen-moddetail{background:var(--navy);overflow-y:auto}
+.moddetail-header{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--navy2);z-index:10;
+}
+.moddetail-content{padding:16px 20px 80px;max-width:800px;margin:0 auto}
+.mod-section{margin-bottom:20px}
+.mod-section-title{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid var(--border);
+  padding-bottom:6px;margin-bottom:12px;
+}
+.mod-topic{
+  display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;
+}
+.mod-bullet{color:var(--gold);flex-shrink:0;margin-top:2px}
+.mod-topic-text{font-size:clamp(11px,1.8vw,14px);color:var(--text);line-height:1.6}
+.mod-scenario{
+  background:rgba(232,64,64,0.08);border:1px solid rgba(232,64,64,0.3);
+  border-radius:var(--r);padding:14px;margin-bottom:12px;
+}
+.mod-scenario-label{font-size:9px;letter-spacing:2px;color:var(--red2);margin-bottom:6px}
+.mod-scenario-text{font-size:clamp(11px,1.8vw,14px);color:var(--text);line-height:1.6;font-style:italic}
+
+/* ── PHOTO CARD ─────────────────────────────── */
+.photo-card{
+  position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);
+}
+.photo-card img{width:100%;height:100%;object-fit:cover}
+.photo-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(8,14,20,0.95));
+  padding:20px 16px 12px;
+}
+.photo-label-title{font-size:clamp(14px,2.5vw,20px);color:var(--gold2);font-weight:bold;letter-spacing:1px}
+.photo-label-sub{font-size:clamp(10px,1.6vw,13px);color:var(--text2);margin-top:3px;line-height:1.4}
+.photo-label-tag{font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px}
+
+/* Pulse animation for correct */
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(40,200,80,0.6)}100%{box-shadow:0 0 0 20px rgba(40,200,80,0)}}
+@keyframes pulse-red{0%{box-shadow:0 0 0 0 rgba(232,64,64,0.6)}100%{box-shadow:0 0 0 20px rgba(232,64,64,0)}}
+@keyframes pulse-amber{0%{box-shadow:0 0 0 0 rgba(232,160,32,0.6)}100%{box-shadow:0 0 0 16px rgba(232,160,32,0)}}
+.pulse-green{animation:pulse-green 0.4s ease-out}
+.pulse-red{animation:pulse-red 0.4s ease-out}
+.pulse-amber{animation:pulse-amber 0.4s ease-out}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn 0.3s ease-out}
+
+/* Responsive for smaller devices */
+@media(max-width:600px){
+  .missions-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
+  .card-side-panel{display:none}
+  .mod-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HOME / MISSION SELECT ─────────────────────── -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div>
+      <div class="home-title">ZU-IZU · BUSH PILOT ACADEMY</div>
+      <div class="home-sub">FAHT HOEDSPRUIT · MASEKE GAME RESERVE · KFA 912 ULS-ST 135HP</div>
+    </div>
+    <div class="home-stats">
+      <span class="home-streak" id="streak-display">🔥 0</span>
+      <span id="total-display">0 cards mastered</span>
+    </div>
+  </div>
+
+  <div class="missions-grid">
+    <!-- Level 1 -->
+    <div class="mission-card" id="mission-0" onclick="startMission(0)">
+      <div class="mission-level">Level 1 · Survival Memory</div>
+      <div class="mission-name">CORE LIMITS</div>
+      <div class="mission-desc">VNE · VNO · VA · VS · VX · VY · best glide · mag drop · fuel warning actions. The numbers that keep you alive.</div>
+      <div class="mission-count" id="m0-count">0 / 20 mastered</div>
+      <div class="mission-bar"><div class="mission-fill" id="m0-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 2 -->
+    <div class="mission-card locked" id="mission-1" onclick="startMission(1)">
+      <div class="mission-level">Level 2 · Procedures</div>
+      <div class="mission-name">FLOWS &amp; CHECKS</div>
+      <div class="mission-desc">Run-up · before T/O · after T/O · downwind · HASEL · shutdown. Every mnemonic cold.</div>
+      <div class="mission-count" id="m1-count">🔒 Complete Level 1 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m1-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 3 -->
+    <div class="mission-card locked" id="mission-2" onclick="startMission(2)">
+      <div class="mission-level">Level 3 · Systems</div>
+      <div class="mission-name">AIRCRAFT SYSTEMS</div>
+      <div class="mission-desc">Fuel logic · header tank · trim behaviour · flaperon · engine limits. Understand why.</div>
+      <div class="mission-count" id="m2-count">🔒 Complete Level 2 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m2-fill" style="width:0%"></div></div>
+    </div>
+    <!-- Level 4 -->
+    <div class="mission-card locked" id="mission-3" onclick="startMission(3)">
+      <div class="mission-level">Level 4 · Bush Mastery</div>
+      <div class="mission-name">MASEKE OPS</div>
+      <div class="mission-desc">DA effects · Maseke strip · power lines · crosswind · energy management · scenario drills. Applied flying.</div>
+      <div class="mission-count" id="m3-count">🔒 Complete Level 3 first</div>
+      <div class="mission-bar"><div class="mission-fill" id="m3-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="home-footer">
+    <button class="btn-secondary" onclick="showModules()">📖 Deep Read Modules</button>
+    <button class="btn-secondary" onclick="startWeakDrill()">⚠ Drill Weak Areas</button>
+    <button class="btn-secondary" onclick="resetProgress()" style="margin-left:auto">Reset</button>
+  </div>
+</div>
+
+<!-- ── FLASHCARD SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-cards">
+  <div class="cards-header">
+    <button class="btn-back" onclick="goHome()">← MISSIONS</button>
+    <div class="cards-title" id="cards-title">CORE LIMITS</div>
+    <div class="cards-progress-wrap">
+      <div class="cards-progress-bar"><div class="cards-progress-fill" id="cards-progress"></div></div>
+      <div class="cards-counter" id="cards-counter">1 / 20</div>
+    </div>
+    <div class="streak-badge" id="streak-badge">🔥 0 streak</div>
+  </div>
+
+  <div class="card-area">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-inner" id="card-inner">
+        <div class="card-face card-front" id="card-front">
+          <div class="card-tag">
+            <span id="card-category">SPEED</span>
+            <span class="card-type-badge type-speed" id="card-type-badge">SPEED</span>
+          </div>
+          <div class="card-body">
+            <div class="card-question" id="card-question">VNE</div>
+            <div class="card-value" id="card-front-value">?</div>
+            <div class="card-hint" id="card-hint"></div>
+            <div class="card-tap">TAP TO REVEAL</div>
+          </div>
+          <div class="timer-bar" id="timer-bar"></div>
+          <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+        </div>
+        <div class="card-face card-back" id="card-back">
+          <div class="card-tag">
+            <span id="card-category-back">SPEED</span>
+            <span class="card-type-badge type-speed" id="card-type-badge-back">SPEED</span>
+          </div>
+          <div class="card-body">
+            <div class="card-answer-label">ANSWER</div>
+            <div class="card-answer-main" id="card-answer-main">113 KTS</div>
+            <div class="card-answer-sub" id="card-answer-sub">Never Exceed Speed</div>
+            <div class="card-poh" id="card-poh">POH §2.2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-side-panel">
+      <div class="side-card">
+        <div class="side-label">Session</div>
+        <div class="side-stat" id="side-correct">0</div>
+        <div class="side-sub">correct this session</div>
+      </div>
+      <div class="side-card">
+        <div class="side-label">Streak</div>
+        <div class="side-stat" id="side-streak">0</div>
+        <div class="side-sub">consecutive correct</div>
+      </div>
+      <div class="side-card" style="flex:1">
+        <div class="side-label">Weak Areas</div>
+        <div class="weak-list" id="weak-list">
+          <div style="font-size:9px;color:var(--text3)">None yet — keep going</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conf-buttons" id="conf-buttons" style="display:none">
+    <button class="conf-btn conf-know" onclick="rate('know')">✓ GOT IT</button>
+    <button class="conf-btn conf-unsure" onclick="rate('unsure')">~ UNSURE</button>
+    <button class="conf-btn conf-missed" onclick="rate('missed')">✗ MISSED</button>
+  </div>
+</div>
+
+<!-- ── COMPLETE SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-complete">
+  <div class="complete-icon" id="complete-icon">🎯</div>
+  <div class="complete-title" id="complete-title">LEVEL COMPLETE</div>
+  <div class="complete-sub" id="complete-sub">Bush Phase 1 · Core Limits Mastered</div>
+  <div class="complete-score" id="complete-score">18/20</div>
+  <div class="complete-score-label">CARDS MASTERED</div>
+  <button class="btn-primary" onclick="goHome()">BACK TO MISSIONS</button>
+  <button class="btn-primary" onclick="retryMission()" style="background:var(--navy3);color:var(--gold);border:1px solid var(--gold3)">DRILL AGAIN</button>
+</div>
+
+<!-- ── MODULES SCREEN ─────────────────────────── -->
+<div class="screen" id="screen-modules">
+  <div class="modules-header">
+    <button class="btn-back" onclick="goHome()">← MISSIONS</button>
+    <div class="cards-title">DEEP READ MODULES</div>
+  </div>
+  <div class="mod-grid" id="mod-grid"></div>
+</div>
+
+<!-- ── MODULE DETAIL ──────────────────────────── -->
+<div class="screen" id="screen-moddetail">
+  <div class="moddetail-header">
+    <button class="btn-back" onclick="showScreen('screen-modules')">← MODULES</button>
+    <div class="cards-title" id="moddetail-title">Module Title</div>
+  </div>
+  <div class="moddetail-content" id="moddetail-content"></div>
+</div>
+
+<script>
+// ── IMAGE DATA ────────────────────────────────────
+const IMGS = {
+  cockpit_panel: null,
+  cockpit_close: null,
+  panel_switches: null,
+  maseke_strip1: null,
+  maseke_strip2: null,
+  maseke_powerlines: null,
+  maseke_elephant: null,
+  maseke_road: null,
+};
+
+// ── CARD DATA ─────────────────────────────────────
+
+const MISSIONS = [
+  {
+    id: 0,
+    name: 'CORE LIMITS',
+    level: 'Level 1 · Survival Memory',
+    unlocked: true,
+    threshold: 14, // cards to complete
+    cards: [
+      // SPEEDS
+      {id:'vne', q:'VNE', front:'?', answer:'113 KTS', sub:'Never Exceed — structural failure above this', type:'speed', poh:'POH §2.2', hint:'Never exceed'},
+      {id:'vno', q:'VNO', front:'?', answer:'100 KTS', sub:'Max structural cruise. Smooth air only beyond this.', type:'speed', poh:'POH §2.2', hint:'Max cruise'},
+      {id:'va', q:'VA', front:'?', answer:'84 KTS', sub:'Manoeuvring speed. No full control deflection above this.', type:'speed', poh:'POH §2.2', hint:'Manoeuvring'},
+      {id:'vx', q:'VX', front:'?', answer:'47 KTS', sub:'Best angle of climb. Obstacle clearance.', type:'speed', poh:'POH §2.2', hint:'Best angle'},
+      {id:'vy', q:'VY', front:'?', answer:'58 KTS', sub:'Best rate of climb. Most altitude per minute.', type:'speed', poh:'POH §2.2', hint:'Best rate'},
+      {id:'vs', q:'VS CLEAN', front:'?', answer:'38 KTS', sub:'Stall speed clean at MAUW, power off', type:'speed', poh:'POH §2.2', hint:'Clean stall'},
+      {id:'vso', q:'VS0 FULL FLAP', front:'?', answer:'35 KTS', sub:'Stall speed with full flap deployed', type:'speed', poh:'POH §2.2', hint:'Flap stall'},
+      {id:'vr', q:'VR', front:'?', answer:'42–45 KTS', sub:'Rotation speed on take-off', type:'speed', poh:'POH §4', hint:'Rotate'},
+      {id:'glide', q:'BEST GLIDE', front:'?', answer:'67 KTS', sub:'8.5:1 ratio. Engine out — set this immediately.', type:'speed', poh:'POH §2.3', hint:'Engine out speed'},
+      {id:'turb', q:'TURBULENCE PENETRATION', front:'?', answer:'85 KTS', sub:'Reduce to this in unexpected turbulence', type:'speed', poh:'POH §4', hint:'Rough air'},
+      // LIMITS
+      {id:'rpm_max', q:'MAX RPM', front:'?', answer:'5800', sub:'5 minutes maximum. Absolute ceiling.', type:'limit', poh:'POH §2.3', hint:'5 min limit'},
+      {id:'rpm_cont', q:'MAX CONTINUOUS RPM', front:'?', answer:'5500', sub:'Never exceed this for extended operation', type:'limit', poh:'POH §2.3', hint:'Continuous'},
+      {id:'rpm_idle', q:'IDLE RPM (HOT)', front:'?', answer:'1400–1700', sub:'Normal hot idle range', type:'limit', poh:'POH §2.3', hint:'Ground idle'},
+      {id:'egt', q:'EGT MAX (TURBO)', front:'?', answer:'920°C', sub:'Exhaust Gas Temperature — turbo version', type:'limit', poh:'POH §2.3', hint:'Exhaust temp'},
+      {id:'cht', q:'CHT MAX', front:'?', answer:'130°C', sub:'Cylinder Head Temp. Normal 75–120°C', type:'limit', poh:'POH §2.3', hint:'Cylinder head'},
+      {id:'oil_temp', q:'OIL TEMP MAX', front:'?', answer:'130°C', sub:'Normal range 90–110°C. Min 50°C before run-up.', type:'limit', poh:'POH §2.3', hint:'Oil temp'},
+      {id:'water_temp', q:'WATER TEMP MAX', front:'?', answer:'120°C', sub:'Normal 50–110°C', type:'limit', poh:'POH §2.3', hint:'Coolant'},
+      {id:'oil_press', q:'OIL PRESSURE MAX', front:'?', answer:'7 BAR', sub:'Normal 2–5 bar. Min 0.8 bar at idle.', type:'limit', poh:'POH §2.3', hint:'Oil press'},
+      {id:'mag_drop', q:'MAG CHECK — MAX DROP', front:'?', answer:'300 RPM', sub:'Max drop each mag. Max diff 150 RPM between mags.', type:'limit', poh:'POH §4', hint:'@ 4000 RPM'},
+      {id:'fuel_warn', q:'HEADER TANK WARNING', front:'?', answer:'~8 MIN', sub:'From light ON to engine stop at cruise power. Act immediately.', type:'limit', poh:'POH §1', hint:'Red warning light'},
+    ]
+  },
+  {
+    id: 1,
+    name: 'FLOWS & CHECKS',
+    level: 'Level 2 · Procedures',
+    unlocked: false,
+    threshold: 14,
+    cards: [
+      {id:'runup_t1', q:'RUN-UP MNEMONIC — FIRST 4', front:'T-T-T-T', answer:'TRIM · THROTTLE · TEST · TEMPS', sub:'Trim set · Throttle friction · Test controls · Temperatures in green', type:'proc', poh:'POH §4', hint:'Run-up start'},
+      {id:'runup_rest', q:'RUN-UP MNEMONIC — REST', front:'M·P-P·G·F-F·I·H·E', answer:'MAGS · PRESS · PITOT · GYROS · FUEL · FLAPS · INSTRS · HATCHES · ELECTRICS', sub:'Full run-up flow after T-T-T-T', type:'proc', poh:'POH §4', hint:'Complete flow'},
+      {id:'before_to', q:'BEFORE TAKEOFF MNEMONIC', front:'?', answer:'TOO MANY PILOTS FORGET GOOD HABITS INCREDIBLY EASILY', sub:'T-M-P-F-G-H-I-E', type:'proc', poh:'POH §4', hint:'Pre-takeoff'},
+      {id:'after_to', q:'AFTER TAKEOFF', front:'?', answer:'B-U-T-P-M-F-F-E', sub:'Brakes · Undercarriage · Throttle · Pitch · Mix · Fuel · Flap · Electrics', type:'proc', poh:'POH §4', hint:'After rotate'},
+      {id:'downwind', q:'DOWNWIND CHECK', front:'?', answer:'B-U-M-P-F-F-H', sub:'Brakes · Undercarriage · Mixture · Pitch · Fuel · Flap · Hatches+Harnesses', type:'proc', poh:'POH §4', hint:'In the circuit'},
+      {id:'hasel', q:'UPPER AIR — HASEL', front:'?', answer:'HEIGHT · AIRFRAME · SECURITY · ENGINE · LOCATION', sub:'Min 2000ft AGL. Check FAHS boundary before any upper air work.', type:'proc', poh:'POH §9', hint:'Before manoeuvres'},
+      {id:'shutdown', q:'SHUTDOWN SEQUENCE', front:'?', answer:'RADIO → EFIS → GPS → MAGS → KEY → ELECTRICS → FUEL → PROP', sub:'EFIS off before mags. One fuel valve closed on shutdown.', type:'proc', poh:'POH §4', hint:'Engine off'},
+      {id:'preflight_fuel', q:'FUEL SELECTOR — GROUND', front:'?', answer:'ONE CLOSED', sub:'Either tank closed on the ground. Both open for T/O, landing and manoeuvring.', type:'proc', poh:'POH §4', hint:'Ground ops'},
+      {id:'takeoff_flap', q:'TAKE-OFF FLAP', front:'?', answer:'5°', sub:'Set 5° for take-off. Max 12° while retaining aileron control.', type:'proc', poh:'POH §4', hint:'Flap setting'},
+      {id:'rotate', q:'ROTATE — TAILWHEEL T/O', front:'?', answer:'SLOW TAIL RAISE · 5-COUNT · EDGES', sub:'Let tail rise slowly. 5-count after full power before assisting. Watch runway EDGES not centreline.', type:'proc', poh:'POH §4', hint:'Tailwheel technique'},
+      {id:'pretakeoff_brief1', q:'PRE T/O BRIEF — BEFORE ROTATION', front:'?', answer:'CLOSE POWER · DIRECTIONAL CONTROL · BRAKE · CLEAR RUNWAY', sub:'Any abnormality before rotation', type:'proc', poh:'POH §3', hint:'Abort on ground'},
+      {id:'pretakeoff_brief2', q:'PRE T/O BRIEF — RUNWAY REMAINING', front:'?', answer:'CLOSE POWER · LOWER NOSE · FLAPS AS REQ · LAND AHEAD · BRAKE · CLEAR', sub:'Any abnormality after rotation with sufficient runway remaining', type:'proc', poh:'POH §3', hint:'Abort airborne'},
+      {id:'pretakeoff_brief3', q:'PRE T/O BRIEF — NO RUNWAY', front:'?', answer:'LOWER NOSE · BEST GLIDE · 30° ARC · NO TURNBACK · FLAPS WHEN ASSURED · KEEP FLYING', sub:'Any abnormality after rotation with insufficient runway remaining', type:'proc', poh:'POH §3', hint:'Engine failure T/O'},
+      {id:'goaround', q:'GO-AROUND SEQUENCE', front:'?', answer:'FULL POWER · RIGHT RUDDER · POSITIVE CLIMB · RETRACT FLAP · 50→60 KTS', sub:'WARNING: full nose-up trim + full power = pitch-up. Push stick forward immediately.', type:'proc', poh:'POH §3', hint:'Aborted landing'},
+      {id:'goaround_warn', q:'GO-AROUND WARNING', front:'FULL NOSE-UP TRIM + FULL POWER =', answer:'STRONG NOSE-UP PITCH TENDENCY', sub:'Push stick forward immediately as power applied. This can be fatal at low altitude.', type:'proc', poh:'POH §3', hint:'Critical warning'},
+      {id:'door', q:'UNLATCHED DOOR IN FLIGHT', front:'?', answer:'SAFE TO FLY · MAX 70 KTS · PULL HANDLE TOWARD YOU', sub:'Aircraft flies safely with door open. Close against airflow resistance.', type:'proc', poh:'POH §3', hint:'In-flight'},
+      {id:'climb_normal', q:'NORMAL CLIMB', front:'?', answer:'60 KTS / 5500 RPM', sub:'Preferred climb — better cooling vs small ROC loss', type:'proc', poh:'POH §4', hint:'Climb power'},
+      {id:'approach_speed', q:'NORMAL APPROACH SPEED', front:'?', answer:'50–60 KTS', sub:'5° flap: 60 kts. 8–12° over the fence: 50–55 kts.', type:'proc', poh:'POH §4', hint:'On final'},
+      {id:'sideslip_fuel', q:'BEFORE SIDESLIP — FUEL SELECTORS', front:'?', answer:'BOTH TANKS OPEN', sub:'Low fuel + single tank open + nose-low attitude = starvation risk', type:'proc', poh:'POH §4', hint:'Critical — fuel'},
+      {id:'fuel_action', q:'HEADER TANK LIGHT ON — FIRST ACTIONS', front:'?', answer:'LEVEL WINGS · REDUCE POWER · CHECK VALVES OPEN · SELECT FULLEST TANK', sub:'~8 min remaining. Act immediately. Find landing spot first.', type:'proc', poh:'POH §1', hint:'Emergency fuel'},
+    ]
+  },
+  {
+    id: 2,
+    name: 'AIRCRAFT SYSTEMS',
+    level: 'Level 3 · Systems',
+    unlocked: false,
+    threshold: 12,
+    cards: [
+      {id:'sys_fuel1', q:'FUEL SYSTEM — TOTAL USABLE', front:'?', answer:'100 LITRES', sub:'50L per wing tank in level flight. Header tank 5L buffer.', type:'sys', poh:'POH §1', hint:'Wing tanks'},
+      {id:'sys_fuel2', q:'HEADER TANK — PURPOSE', front:'?', answer:'BUFFER FOR LOW FUEL / NOSE-LOW / SIDESLIP ATTITUDES', sub:'Without it gravity feed fails in these attitudes. Essential for STOL ops.', type:'sys', poh:'POH §1', hint:'Why it exists'},
+      {id:'sys_fuel3', q:'FUEL FEED PATH', front:'?', answer:'GRAVITY → HEADER TANK → MECH PUMP → BACKUP ELECTRIC', sub:'Primary is gravity. Mechanical pump standard. Electric pump backup only.', type:'sys', poh:'POH §1', hint:'Fuel path'},
+      {id:'sys_engine1', q:'ENGINE TYPE', front:'?', answer:'KFA 912 ULS-ST · TURBOCHARGED · 135HP', sub:'Zongshen ZS block. KFA turbo. No carb ice risk. No carb heat.', type:'sys', poh:'POH §1', hint:'Power plant'},
+      {id:'sys_engine2', q:'WHY TURBOCHARGED?', front:'?', answer:'MAINTAINS POWER AT ALTITUDE · HOT/HIGH LIMPOPO OPS', sub:'Standard 912 ULS = 100hp. At DA 4000ft+ that is severely limited. KFA turbo compensates.', type:'sys', poh:'POH §1', hint:'DA performance'},
+      {id:'sys_flap1', q:'FLAPERONS — MAX DEFLECTION', front:'?', answer:'12–15°', sub:'Full span. Combined flap + aileron. Full aileron control retained throughout.', type:'sys', poh:'POH §1', hint:'Control surface'},
+      {id:'sys_flap2', q:'SELECTING FLAP — WHAT HAPPENS?', front:'?', answer:'NOSE DOWN MOMENT · BACK STICK REQUIRED · INCREASED AILERON SENSITIVITY', sub:'Full flap produces significant nose-down. Apply nose-up trim. Ailerons become more responsive.', type:'sys', poh:'POH §7', hint:'Flap effects'},
+      {id:'sys_tail', q:'WHY TAILWHEEL FOR MASEKE?', front:'?', answer:'BETTER PROP CLEARANCE · LIGHTER · MORE RESPONSIVE ON ROUGH STRIPS', sub:'Lower empty weight. Better ground clearance. Higher pilot skill demand — deliberate choice.', type:'sys', poh:'POH §1', hint:'Config choice'},
+      {id:'sys_gear', q:'KFA BUFFALO SUSPENSION', front:'?', answer:'BUNGEE/BUFFALO GEAR FOR ROUGH STRIP ABSORPTION · NO RETRACTION FAILURE RISK', sub:'Designed for exactly the terrain at Maseke. Fixed gear — simplicity is reliability.', type:'sys', poh:'POH §1', hint:'Undercarriage'},
+      {id:'sys_vg', q:'VORTEX GENERATORS — WHAT DO THEY DO?', front:'?', answer:'REDUCE STALL SPEED · IMPROVE LOW-SPEED HANDLING', sub:'Re-energise boundary layer airflow. Precise angle is critical — never bump them.', type:'sys', poh:'POH §3', hint:'Leading edge'},
+      {id:'sys_weight', q:'USEFUL LOAD', front:'?', answer:'215 KG', sub:'MTOW 600kg minus empty 385kg. Max fuel 105L (73kg) eats into this.', type:'sys', poh:'POH §6', hint:'Loading'},
+      {id:'sys_trim', q:'ELEVATOR TRIM — UP BUTTON', front:'?', answer:'NOSE UP TRIM', sub:'Down button = nose down. Indicator light moves down for nose-up. Rigged hands-off level at 85 kts.', type:'sys', poh:'POH §7', hint:'Trim system'},
+      {id:'sys_prop', q:'E-PROP 4-BLADE 72" — WHY 4 BLADE?', front:'?', answer:'SHORTER DIAMETER = BETTER GROUND CLEARANCE · SMOOTHER POWER DELIVERY', sub:'Same thrust from shorter prop. Critical for rough strip operations.', type:'sys', poh:'POH §1', hint:'Propeller'},
+      {id:'sys_oil', q:'OIL PRESSURE — MUST RISE WITHIN', front:'?', answer:'10 SECONDS OF START', sub:'If no rise within 10 seconds — shut down immediately. Engine damage risk.', type:'sys', poh:'POH §4', hint:'Post-start check'},
+      {id:'sys_starter', q:'STARTER — MAX CONTINUOUS CRANKING', front:'?', answer:'20 SECONDS · 1 MIN COOLING BEFORE RETRY', sub:'Starter motor protection. Follow this strictly.', type:'sys', poh:'POH §2.3', hint:'Engine start'},
+      {id:'sys_load', q:'LOAD FACTORS', front:'?', answer:'+4G / -2G (FLAPS UP)
++2G (FLAPS DOWN)', sub:'No aerobatics. No intentional spins. Max bank 60°.', type:'sys', poh:'POH §6', hint:'Structural limits'},
+    ]
+  },
+  {
+    id: 3,
+    name: 'MASEKE OPS',
+    level: 'Level 4 · Bush Mastery',
+    unlocked: false,
+    threshold: 12,
+    cards: [
+      // Photo recognition cards
+      {id:'photo_panel', q:'IDENTIFY: ZU-IZU PANEL', front:'WHAT ARE THE KEY ITEMS ON THE LEFT SIDE?', answer:'L/MAG · R/MAG SWITCHES
+ACC/OFF/ON/START KEY
+G3X TOUCH EFIS', sub:'Carbon fibre panel. G3X is primary. Key has REMOVE BEFORE FLIGHT tag.', type:'scenario', poh:'Cockpit', hint:'Panel recognition', img:'cockpit_panel'},
+      {id:'photo_switches', q:'IDENTIFY: CIRCUIT BREAKER ROW', front:'NAME THE BREAKERS LEFT TO RIGHT', answer:'CHRG · AVMASTR · EFIS · RADIO · INTRCOM · USB · LIGHTS · TRIM · PROP · FP1 · FP2', sub:'Red strip at bottom of panel. Know which breaks what.', type:'scenario', poh:'Cockpit', hint:'Red breaker strip', img:'panel_switches'},
+      {id:'photo_maseke1', q:'MASEKE STRIP — WHAT DO YOU SEE?', front:'ASSESS THIS APPROACH', answer:'NARROW · RED DIRT · TREE-LINED · SLOPE VISIBLE', sub:'SUITABL assessment: Surface (dirt, firm), Undershoot (bush), Into wind (assess sock), Touchdown point, Adequate length, Barriers (trees both sides), Landing direction.', type:'scenario', poh:'Bush ops', hint:'Strip assessment', img:'maseke_strip1'},
+      {id:'photo_powerlines', q:'MASEKE FINAL — HAZARD?', front:'WHAT ARE THE RED BALLS FOR?', answer:'POWER LINES ON FINAL
+STEEP APPROACH REQUIRED', sub:'Power lines also on departure end. VX 47 kts discipline critical on departure. Not a Day 1 strip.', type:'scenario', poh:'Bush ops', hint:'Approach hazard', img:'maseke_powerlines'},
+      {id:'photo_elephant', q:'MASEKE — STRIP INSPECTION', front:'WHAT IS THIS AND WHAT DO YOU DO?', answer:'WILDLIFE ON STRIP · LOW PASS TO CLEAR · DO NOT LAND', sub:'Announce blind broadcast. Low pass at safe altitude. Wait for strip to clear. Reassess fuel.', type:'scenario', poh:'Bush ops', hint:'Wildlife hazard', img:'maseke_elephant'},
+      // Scenario cards
+      {id:'sc_da', q:'SCENARIO: HOT AFTERNOON · FAHT
+DA 4300FT · MTOW 600KG', front:'T/O ROLL EXPECTATION?', answer:'110–130M MINIMUM', sub:'POH states 80m at ISA sea level. Turbo partially compensates engine but NOT aerodynamic performance. Factor for surface condition too.', type:'scenario', poh:'POH §5', hint:'Performance planning'},
+      {id:'sc_crosswind', q:'SCENARIO: LEFT CROSSWIND · MASEKE
+XWIND 14 KTS', front:'TECHNIQUE?', answer:'CRAB INTO WIND · WINDWARD SIDE LINEUP · LESS FLAP', sub:'Higher crosswind = less flap. Land on upwind main first. Stick forward on touchdown. Windward side lineup — drift toward centreline.', type:'scenario', poh:'POH §4', hint:'Crosswind landing'},
+      {id:'sc_fuel_low', q:'SCENARIO: MASEKE OPS · 2 HRS FLOWN
+HEADER LIGHT ILLUMINATES', front:'IMMEDIATE ACTIONS?', answer:'LEVEL WINGS → REDUCE POWER → CHECK VALVES OPEN → SELECT FULLEST TANK', sub:'Were you flying ball-right with only one tank open? This is the most likely cause. ~8 min remaining.', type:'scenario', poh:'POH §1', hint:'Fuel emergency'},
+      {id:'sc_groundloop', q:'SCENARIO: MASEKE TAKE-OFF
+SWING LEFT AT 30 KTS', front:'CORRECT RESPONSE IN ORDER?', answer:'RUDDER → BRAKE → THROTTLE (EXTREME CAUTION) → AILERON', sub:'135hp can REINFORCE a groundloop if throttle used aggressively. Use rudder and brake first. Throttle last resort only.', type:'scenario', poh:'Tailwheel notes', hint:'Groundloop prevention'},
+      {id:'sc_weather', q:'SCENARIO: 1345 HRS · JANUARY
+CB 25NM WEST · CLOUD BASE 3000FT', front:'GO OR NO-GO?', answer:'NO-GO', sub:'CB within 30nm = no-go. 1345 departure = return 1430 = peak convective activity. Decision made on ground or not at all.', type:'scenario', poh:'Personal minimums', hint:'Weather decision'},
+      {id:'sc_bounce', q:'SCENARIO: WHEEL LANDING · MASEKE
+AIRCRAFT BOUNCES ON TOUCHDOWN', front:'IMMEDIATE ACTION?', answer:'GO-AROUND · FULL POWER · PUSH FORWARD (TRIM WARNING)', sub:'Never try to salvage a bounced landing. Energy is wrong. WARNING: anticipate nose-up pitch if trimmed nose-up.', type:'scenario', poh:'POH §4', hint:'Bounced landing'},
+      {id:'sc_stall', q:'SCENARIO: 45° BANK TURN · 300FT AGL
+60 KTS · DISTRACTED BY SIGHTING', front:'STALL SPEED IN THIS BANK?', answer:'~45 KTS', sub:'45° bank = 1.41G = VS × 1.19 = 38 × 1.19 = 45 kts. Only 15 kts margin at 300ft AGL. This is how fatal accidents happen.', type:'scenario', poh:'POH §2.2', hint:'Stall in turn'},
+      {id:'sc_fatigue', q:'SCENARIO: 3 HRS SURVEILLANCE
+TIRED · ONE MORE TRANSECT REQUESTED', front:'YOUR DECISION?', answer:'LAND · MISSION CAN WAIT · FATIGUE KILLS', sub:'Fatigue impairs self-assessment. Decision-making degrades first — before you notice it. Pre-determined limits beat in-moment judgement every time.', type:'scenario', poh:'Good airmanship', hint:'Human factors'},
+      {id:'sc_maseke_depart', q:'MASEKE DEPARTURE · POWER LINES AHEAD
+VX SPEED?', front:'?', answer:'47 KTS · MAINTAIN UNTIL CLEAR', sub:'Best angle of climb. Do not chase VY until obstacles are cleared. This is exactly what VX is for.', type:'scenario', poh:'POH §2.2', hint:'Obstacle departure'},
+      {id:'sc_suitabl', q:'BUSH STRIP ASSESSMENT', front:'SUITABL =', answer:'SURFACE · UNDERSHOOT · INTO WIND · TOUCHDOWN POINT · ADEQUATE LENGTH · BARRIERS · LANDING DIRECTION', sub:'Run this every strip, every time. Maseke: surface OK, power lines are the BARRIERS to plan for.', type:'scenario', poh:'Bush ops', hint:'Strip assessment'},
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────
+let state = {
+  streak: 0,
+  totalMastered: 0,
+  missionProgress: [0, 0, 0, 0],
+  masteredCards: [],
+  weakCards: [],
+  sessionCorrect: 0,
+};
+
+try {
+  const saved = localStorage.getItem('zuizu_academy');
+  if (saved) state = {...state, ...JSON.parse(saved)};
+} catch(e) {}
+
+function save() {
+  try { localStorage.setItem('zuizu_academy', JSON.stringify(state)); } catch(e) {}
+}
+
+// ── CURRENT DRILL STATE ───────────────────────────
+let drill = {
+  missionIdx: 0,
+  cards: [],
+  cardIdx: 0,
+  isFlipped: false,
+  timerInterval: null,
+  timerStart: null,
+  isWeak: false,
+};
+
+// ── HOME / MISSIONS ───────────────────────────────
+function updateHome() {
+  document.getElementById('streak-display').textContent = '🔥 ' + state.streak;
+  document.getElementById('total-display').textContent = state.totalMastered + ' cards mastered';
+
+  MISSIONS.forEach((m, i) => {
+    const card = document.getElementById('mission-' + i);
+    const fill = document.getElementById('m' + i + '-fill');
+    const count = document.getElementById('m' + i + '-count');
+    const prog = state.missionProgress[i] || 0;
+    const pct = Math.min(100, (prog / m.threshold) * 100);
+
+    fill.style.width = pct + '%';
+    count.textContent = prog + ' / ' + m.threshold + ' mastered';
+
+    // Unlock logic
+    const unlocked = i === 0 || (state.missionProgress[i-1] || 0) >= MISSIONS[i-1].threshold;
+    if (unlocked) {
+      card.classList.remove('locked');
+      if (prog >= m.threshold) {
+        card.classList.add('complete');
+        count.textContent = '✓ Phase Complete — ' + prog + ' mastered';
+      }
+    } else {
+      card.classList.add('locked');
+      count.textContent = '🔒 Complete Level ' + i + ' first';
+    }
+  });
+}
+
+function startMission(idx) {
+  const unlocked = idx === 0 || (state.missionProgress[idx-1] || 0) >= MISSIONS[idx-1].threshold;
+  if (!unlocked) return;
+
+  const m = MISSIONS[idx];
+  drill.missionIdx = idx;
+  drill.isWeak = false;
+
+  // Build deck — missed cards appear more
+  let deck = [...m.cards];
+  state.weakCards.filter(id => m.cards.find(c => c.id === id)).forEach(id => {
+    const card = m.cards.find(c => c.id === id);
+    if (card) deck.push(card); // add extra copy
+  });
+  // Shuffle
+  deck = deck.sort(() => Math.random() - 0.5);
+  drill.cards = deck;
+  drill.cardIdx = 0;
+  drill.sessionCorrect = 0;
+  state.sessionCorrect = 0;
+
+  document.getElementById('cards-title').textContent = m.name;
+  document.getElementById('side-correct').textContent = '0';
+  document.getElementById('side-streak').textContent = state.streak;
+
+  showScreen('screen-cards');
+  renderCard();
+  updateHome();
+}
+
+function startWeakDrill() {
+  if (state.weakCards.length === 0) {
+    alert('No weak areas yet — complete some missions first.');
+    return;
+  }
+  const allCards = MISSIONS.flatMap(m => m.cards);
+  const weakDeck = state.weakCards
+    .map(id => allCards.find(c => c.id === id))
+    .filter(Boolean)
+    .sort(() => Math.random() - 0.5);
+
+  drill.missionIdx = -1;
+  drill.isWeak = true;
+  drill.cards = weakDeck;
+  drill.cardIdx = 0;
+  drill.sessionCorrect = 0;
+
+  document.getElementById('cards-title').textContent = '⚠ WEAK AREAS';
+  showScreen('screen-cards');
+  renderCard();
+}
+
+// ── RENDER CARD ───────────────────────────────────
+function renderCard() {
+  if (drill.cardIdx >= drill.cards.length) {
+    showComplete();
+    return;
+  }
+
+  const card = drill.cards[drill.cardIdx];
+  const total = drill.cards.length;
+  const pct = (drill.cardIdx / total) * 100;
+
+  document.getElementById('cards-progress').style.width = pct + '%';
+  document.getElementById('cards-counter').textContent = (drill.cardIdx + 1) + ' / ' + total;
+  document.getElementById('streak-badge').textContent = '🔥 ' + state.streak + ' streak';
+
+  // Reset flip
+  drill.isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('conf-buttons').style.display = 'none';
+  document.getElementById('result-overlay').classList.remove('show','correct','wrong');
+
+  // FRONT
+  const typeClass = 'type-' + (card.type || 'speed');
+  document.getElementById('card-category').textContent = (card.type || 'SPEED').toUpperCase();
+  document.getElementById('card-type-badge').className = 'card-type-badge ' + typeClass;
+  document.getElementById('card-type-badge').textContent = (card.type || 'SPEED').toUpperCase();
+
+  // Check if photo card
+  const flashcardEl = document.getElementById('flashcard');
+  const frontFace = document.getElementById('card-front');
+  const backFace = document.getElementById('card-back');
+
+  if (card.img && IMGS[card.img] && IMGS[card.img] !== null) {
+    // Photo card front
+    frontFace.innerHTML = `
+      <div class="card-tag">
+        <span>${(card.type||'SCENARIO').toUpperCase()}</span>
+        <span class="card-type-badge type-scenario">SCENARIO</span>
+      </div>
+      <div class="photo-card" style="flex:1;margin:10px;border-radius:10px;overflow:hidden;position:relative;background:var(--navy4);display:flex;align-items:center;justify-content:center">
+        <div style="text-align:center;padding:20px"><div style="font-size:40px;margin-bottom:8px">📸</div><div style="font-size:11px;color:var(--text3);letter-spacing:2px">IMAGE: ${card.img}</div><div style="font-size:10px;color:var(--text3);margin-top:4px">Upload images to GitHub alongside index.html</div></div>
+        <img src="${IMGS[card.img]}" style="width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(8,14,20,0.95));padding:14px 12px 10px">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:4px">${card.hint||''}</div>
+          <div style="font-size:clamp(13px,2.5vw,18px);color:var(--gold2);font-weight:bold">${card.q}</div>
+          <div style="font-size:clamp(10px,1.6vw,13px);color:var(--text2);margin-top:3px">${card.front}</div>
+        </div>
+      </div>
+      <div style="padding:8px 12px;font-size:9px;color:var(--text3);letter-spacing:2px;text-align:center">TAP TO REVEAL</div>
+      <div class="timer-bar" id="timer-bar"></div>
+      <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+    `;
+  } else {
+    // Standard card front
+    const valClass = card.type === 'limit' ? 'card-value red' :
+                     card.type === 'proc' ? 'card-value green small' :
+                     card.type === 'scenario' ? 'card-value xsmall' : 'card-value';
+
+    frontFace.innerHTML = `
+      <div class="card-tag">
+        <span id="card-category">${(card.type||'SPEED').toUpperCase()}</span>
+        <span class="card-type-badge ${typeClass}" id="card-type-badge">${(card.type||'SPEED').toUpperCase()}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-question">${card.q}</div>
+        <div class="${valClass}">${card.front || '?'}</div>
+        <div class="card-hint">${card.hint || ''}</div>
+        <div class="card-tap">TAP TO REVEAL</div>
+      </div>
+      <div class="timer-bar" id="timer-bar"></div>
+      <div class="result-overlay" id="result-overlay"><span class="result-icon" id="result-icon"></span></div>
+    `;
+  }
+
+  // BACK
+  const ansClass = card.type === 'limit' ? 'card-answer-main red' :
+                   card.type === 'proc' ? 'card-answer-main' :
+                   'card-answer-main';
+  backFace.innerHTML = `
+    <div class="card-tag">
+      <span>${(card.type||'SPEED').toUpperCase()}</span>
+      <span class="card-type-badge ${typeClass}">${(card.type||'SPEED').toUpperCase()}</span>
+    </div>
+    <div class="card-body">
+      <div class="card-answer-label">ANSWER</div>
+      <div class="${ansClass}" style="white-space:pre-line">${card.answer}</div>
+      <div class="card-answer-sub">${card.sub || ''}</div>
+      <div class="card-poh">${card.poh || ''}</div>
+    </div>
+  `;
+
+  // Start timer
+  startTimer();
+}
+
+function startTimer() {
+  if (drill.timerInterval) clearInterval(drill.timerInterval);
+  const bar = document.getElementById('timer-bar');
+  if (!bar) return;
+
+  const TOTAL = 5000; // 5 seconds
+  const start = Date.now();
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(1)';
+  bar.style.background = 'var(--gold)';
+
+  drill.timerInterval = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, 1 - elapsed / TOTAL);
+    const bar2 = document.getElementById('timer-bar');
+    if (!bar2) { clearInterval(drill.timerInterval); return; }
+    bar2.style.transition = 'none';
+    bar2.style.transform = `scaleX(${remaining})`;
+
+    if (elapsed > 3000) bar2.style.background = 'var(--amber)';
+    if (elapsed > 4500) bar2.style.background = 'var(--red)';
+
+    if (elapsed >= TOTAL) {
+      clearInterval(drill.timerInterval);
+      // Auto-flip if not already
+      if (!drill.isFlipped) {
+        flipCard();
+        // Mark as hesitation
+        const bar3 = document.getElementById('timer-bar');
+        if (bar3) bar3.style.background = 'var(--amber)';
+      }
+    }
+  }, 50);
+}
+
+function flipCard() {
+  if (drill.isFlipped) return;
+  drill.isFlipped = true;
+  clearInterval(drill.timerInterval);
+
+  document.getElementById('flashcard').classList.add('flipped');
+  document.getElementById('conf-buttons').style.display = 'flex';
+
+  // Check elapsed time for amber
+  const elapsed = Date.now() - (drill.timerStart || Date.now());
+}
+
+function rate(conf) {
+  clearInterval(drill.timerInterval);
+  const card = drill.cards[drill.cardIdx];
+
+  if (conf === 'know') {
+    state.streak++;
+    state.sessionCorrect = (state.sessionCorrect || 0) + 1;
+    // Remove from weak list
+    state.weakCards = state.weakCards.filter(id => id !== card.id);
+    // Add to mastered
+    if (!state.masteredCards.includes(card.id)) {
+      state.masteredCards.push(card.id);
+      state.totalMastered++;
+      // Update mission progress
+      if (drill.missionIdx >= 0) {
+        const m = MISSIONS[drill.missionIdx];
+        const mastered = m.cards.filter(c => state.masteredCards.includes(c.id)).length;
+        state.missionProgress[drill.missionIdx] = mastered;
+      }
+    }
+    // Flash green
+    showResult(true);
+  } else if (conf === 'unsure') {
+    state.streak = Math.max(0, state.streak - 1);
+    // Add to weak if not already mastered
+    if (!state.weakCards.includes(card.id)) state.weakCards.push(card.id);
+    showResult(null);
+  } else {
+    state.streak = 0;
+    if (!state.weakCards.includes(card.id)) state.weakCards.push(card.id);
+    showResult(false);
+  }
+
+  save();
+  updateSidePanel();
+
+  setTimeout(() => {
+    drill.cardIdx++;
+    renderCard();
+  }, conf === 'missed' ? 600 : 400);
+}
+
+function showResult(correct) {
+  const overlay = document.getElementById('result-overlay');
+  const icon = document.getElementById('result-icon');
+  if (!overlay || !icon) return;
+
+  if (correct === true) {
+    overlay.className = 'result-overlay show correct';
+    icon.textContent = '✓';
+    document.getElementById('flashcard').classList.add('pulse-green');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-green'), 500);
+  } else if (correct === false) {
+    overlay.className = 'result-overlay show wrong';
+    icon.textContent = '✗';
+    document.getElementById('flashcard').classList.add('pulse-red');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-red'), 500);
+  } else {
+    document.getElementById('flashcard').classList.add('pulse-amber');
+    setTimeout(() => document.getElementById('flashcard').classList.remove('pulse-amber'), 500);
+  }
+}
+
+function updateSidePanel() {
+  document.getElementById('side-correct').textContent = state.sessionCorrect || 0;
+  document.getElementById('side-streak').textContent = state.streak;
+
+  const weakEl = document.getElementById('weak-list');
+  if (state.weakCards.length === 0) {
+    weakEl.innerHTML = '<div style="font-size:9px;color:var(--text3)">None yet</div>';
+  } else {
+    const allCards = MISSIONS.flatMap(m => m.cards);
+    weakEl.innerHTML = state.weakCards.slice(-5).map(id => {
+      const c = allCards.find(x => x.id === id);
+      return `<div class="weak-item">${c ? c.q.substring(0,20) : id}</div>`;
+    }).join('');
+  }
+}
+
+function showComplete() {
+  clearInterval(drill.timerInterval);
+  const m = drill.missionIdx >= 0 ? MISSIONS[drill.missionIdx] : null;
+  const correct = state.sessionCorrect || 0;
+  const total = drill.cards.length;
+  const score = Math.round((correct / total) * 100);
+  const isLevelComplete = m && (state.missionProgress[drill.missionIdx] || 0) >= m.threshold;
+
+  document.getElementById('complete-icon').textContent = score >= 80 ? '🎯' : score >= 60 ? '✈️' : '📖';
+  document.getElementById('complete-title').textContent = isLevelComplete ? 'PHASE COMPLETE' : 'SESSION DONE';
+  document.getElementById('complete-sub').textContent = m ? (m.level + ' · ' + m.name) : 'WEAK AREA DRILL';
+  document.getElementById('complete-score').textContent = correct + '/' + total;
+
+  showScreen('screen-complete');
+  updateHome();
+  save();
+}
+
+function retryMission() {
+  startMission(drill.missionIdx >= 0 ? drill.missionIdx : 0);
+}
+
+// ── MODULES (DEEP READ) ───────────────────────────
+const MODULE_DATA = [
+  {title:'General Rules & Limits', level:'Level 1', topics:['MTOW 600kg · Empty 385kg · Useful load 215kg','VNE 113 kts · VNO 100 kts · VA 84 kts','Load factors: Flaps UP +4G/-2G · Flaps DOWN +2G','No aerobatics. No intentional spins. Max bank 60°.','No transponder fitted. No carb heat — turbocharged.'], scenario:'You are in a 45° bank at 90 kts when turbulence hits west of Maseke. What is your margin to VA and what do you do?'},
+  {title:'Fuel System', level:'Level 1', topics:['Wing tanks 50L each · Header tank 5L','Selectors: ONE closed ground · BOTH open T/O+landing','BOTH open before any sideslip — critical','Header warning: ~8 min · Level wings · reduce power · check valves','Fuel sample below header tank right side — every flight'], scenario:'Header light illuminates at 500ft over Maseke. You were flying ball-right, right tank only, for 20 min. Walk through your actions.'},
+  {title:'Taildragger Techniques', level:'Level 2', topics:['Stick BACK at all times on the ground with engine running','T/O: Heels down · 5-count before raising tail · Watch EDGES not centreline','Groundloop: Rudder → Brake → Throttle (EXTREME CAUTION 135hp) → Aileron','3-point: Burn all energy · fly only the tailwheel · work back stick','Wheel landing: Forward stick on touchdown · power off when controlled'], scenario:'On Maseke T/O roll the aircraft swings left at 30 kts. What is your response in exact sequence?'},
+  {title:'Emergency Procedures', level:'Level 2', topics:['Before rotation: Close power · directional control · brake · clear','After rotation/runway: Close power · lower nose · flaps as req · land ahead · brake · clear','After rotation/no runway: Lower nose · best glide · 30° arc · no turnback · flaps when assured · keep flying','Engine fire: Mags off · shut-off closed · selectors closed · power off · descend · sideslip','Go-around WARNING: full nose-up trim + full power = pitch-up. Push forward.'], scenario:'At 200ft after T/O from FAHT the engine loses significant power. Scrub ahead. Runway behind. Walk through your exact actions.'},
+  {title:'Weather & Go/No-Go', level:'Level 3', topics:['Class G legal: 1500m vis · clear of cloud by day','Personal minimums Maseke: 5km+ · 2000ft+ AGL · Wind <15 kts · No Cb 30nm · DA <4000ft','Limpopo summer: Land by 1400 hrs — CB development from midday','DA at FAHT 35°C afternoon: can reach 4500ft+','Tools: SAWS · Windy.com · Meteoblue · AFIS local'], scenario:'1345 hrs, January. CB 25nm west. Cloud base 3000ft. Vis 10km. Wind calm. 45-min Maseke mission. Go or no-go and why?'},
+  {title:'Radio — FAHT & Maseke', level:'Level 3', topics:['FAHT is uncontrolled AFIS — not a tower','FAHS military adjacent — coordinate before entering their zone','Maseke blind calls: 10nm · 5nm · final · clear','Sterile cockpit below 500ft AGL — no non-essential radio','MAYDAY: MAYDAY ×3 · callsign · position · nature · souls · intentions'], scenario:'Inbound FAHT, precautionary fuel state (not emergency), helicopter in circuit. Write and speak the exact calls from first AFIS contact to landing.'},
+  {title:'Good Airmanship', level:'Level 4', topics:['TEM: Identify threats before errors — errors before incidents','Get-home-itis: Mission is never worth more than aircraft and pilot','Sterile cockpit: below 500ft — no non-essential communication','Post-flight debrief: 3 sentences — every flight — no exceptions','Personal minimums: set on the ground, never renegotiate airborne','Fuel discipline: Land with 20L minimum — non-negotiable'], scenario:'3 hours surveillance, tired, difficult passenger, one more transect requested. The light is perfect. What is your decision and the factors driving it?'},
+  {title:'Maseke Strip Operations', level:'Level 4', topics:['SUITABL: Surface · Undershoot · Into wind · Touchdown point · Adequate length · Barriers · Landing direction','Power lines on final — marked red balls — steep approach required','Power lines on departure end — VX 47 kts discipline critical','Low pass to clear strip of wildlife before landing','Build up to Maseke progressively — not a Day 1 strip'], scenario:'On final at Maseke, high and fast at 70 kts, 200ft, power lines ahead with red balls. Go-around or land? If landing — technique? If going around — procedure?'},
+];
+
+function showModules() {
+  const grid = document.getElementById('mod-grid');
+  grid.innerHTML = MODULE_DATA.map((m, i) => `
+    <div class="mod-card" onclick="showModDetail(${i})">
+      <div class="mod-card-level">${m.level}</div>
+      <div class="mod-card-title">${m.title}</div>
+      <div class="mod-card-desc">${m.topics[0].substring(0,60)}...</div>
+    </div>
+  `).join('');
+  showScreen('screen-modules');
+}
+
+function showModDetail(idx) {
+  const m = MODULE_DATA[idx];
+  document.getElementById('moddetail-title').textContent = m.title;
+  document.getElementById('moddetail-content').innerHTML = `
+    <div class="mod-section">
+      <div class="mod-section-title">Core Content</div>
+      ${m.topics.map(t => `<div class="mod-topic"><div class="mod-bullet">·</div><div class="mod-topic-text">${t}</div></div>`).join('')}
+    </div>
+    <div class="mod-scenario">
+      <div class="mod-scenario-label">⚠ SCENARIO</div>
+      <div class="mod-scenario-text">${m.scenario}</div>
+    </div>
+  `;
+  showScreen('screen-moddetail');
+}
+
+// ── SCREEN MANAGEMENT ─────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-home') updateHome();
+  if (id === 'screen-cards') updateSidePanel();
+}
+
+function goHome() {
+  clearInterval(drill.timerInterval);
+  showScreen('screen-home');
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress?')) return;
+  state = {streak:0,totalMastered:0,missionProgress:[0,0,0,0],masteredCards:[],weakCards:[],sessionCorrect:0};
+  save();
+  updateHome();
+}
+
+// ── INIT ──────────────────────────────────────────
+updateHome();
+</script>
+</body>
+</html>
