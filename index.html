@@ -618,8 +618,7 @@ const MISSIONS = [
       {id:'sys_prop', q:'E-PROP 4-BLADE 72" — WHY 4 BLADE?', front:'?', answer:'SHORTER DIAMETER = BETTER GROUND CLEARANCE · SMOOTHER POWER DELIVERY', sub:'Same thrust from shorter prop. Critical for rough strip operations.', type:'sys', poh:'POH §1', hint:'Propeller'},
       {id:'sys_oil', q:'OIL PRESSURE — MUST RISE WITHIN', front:'?', answer:'10 SECONDS OF START', sub:'If no rise within 10 seconds — shut down immediately. Engine damage risk.', type:'sys', poh:'POH §4', hint:'Post-start check'},
       {id:'sys_starter', q:'STARTER — MAX CONTINUOUS CRANKING', front:'?', answer:'20 SECONDS · 1 MIN COOLING BEFORE RETRY', sub:'Starter motor protection. Follow this strictly.', type:'sys', poh:'POH §2.3', hint:'Engine start'},
-      {id:'sys_load', q:'LOAD FACTORS', front:'?', answer:'+4G / -2G (FLAPS UP)
-+2G (FLAPS DOWN)', sub:'No aerobatics. No intentional spins. Max bank 60°.', type:'sys', poh:'POH §6', hint:'Structural limits'},
+      {id:'sys_load', q:'LOAD FACTORS', front:'?', answer:'+4G / -2G (FLAPS UP) · +2G (FLAPS DOWN)', sub:'No aerobatics. No intentional spins. Max bank 60°.', type:'sys', poh:'POH §6', hint:'Structural limits'},
     ]
   },
   {
@@ -630,33 +629,21 @@ const MISSIONS = [
     threshold: 12,
     cards: [
       // Photo recognition cards
-      {id:'photo_panel', q:'IDENTIFY: ZU-IZU PANEL', front:'WHAT ARE THE KEY ITEMS ON THE LEFT SIDE?', answer:'L/MAG · R/MAG SWITCHES
-ACC/OFF/ON/START KEY
-G3X TOUCH EFIS', sub:'Carbon fibre panel. G3X is primary. Key has REMOVE BEFORE FLIGHT tag.', type:'scenario', poh:'Cockpit', hint:'Panel recognition', img:'cockpit_panel'},
+      {id:'photo_panel', q:'IDENTIFY: ZU-IZU PANEL', front:'WHAT ARE THE KEY ITEMS ON THE LEFT SIDE?', answer:'L/MAG · R/MAG SWITCHES · ACC/OFF/ON/START KEY · G3X TOUCH EFIS', sub:'Carbon fibre panel. G3X is primary. Key has REMOVE BEFORE FLIGHT tag.', type:'scenario', poh:'Cockpit', hint:'Panel recognition', img:'cockpit_panel'},
       {id:'photo_switches', q:'IDENTIFY: CIRCUIT BREAKER ROW', front:'NAME THE BREAKERS LEFT TO RIGHT', answer:'CHRG · AVMASTR · EFIS · RADIO · INTRCOM · USB · LIGHTS · TRIM · PROP · FP1 · FP2', sub:'Red strip at bottom of panel. Know which breaks what.', type:'scenario', poh:'Cockpit', hint:'Red breaker strip', img:'panel_switches'},
       {id:'photo_maseke1', q:'MASEKE STRIP — WHAT DO YOU SEE?', front:'ASSESS THIS APPROACH', answer:'NARROW · RED DIRT · TREE-LINED · SLOPE VISIBLE', sub:'SUITABL assessment: Surface (dirt, firm), Undershoot (bush), Into wind (assess sock), Touchdown point, Adequate length, Barriers (trees both sides), Landing direction.', type:'scenario', poh:'Bush ops', hint:'Strip assessment', img:'maseke_strip1'},
-      {id:'photo_powerlines', q:'MASEKE FINAL — HAZARD?', front:'WHAT ARE THE RED BALLS FOR?', answer:'POWER LINES ON FINAL
-STEEP APPROACH REQUIRED', sub:'Power lines also on departure end. VX 47 kts discipline critical on departure. Not a Day 1 strip.', type:'scenario', poh:'Bush ops', hint:'Approach hazard', img:'maseke_powerlines'},
+      {id:'photo_powerlines', q:'MASEKE FINAL — HAZARD?', front:'WHAT ARE THE RED BALLS FOR?', answer:'POWER LINES ON FINAL · STEEP APPROACH REQUIRED', sub:'Power lines also on departure end. VX 47 kts discipline critical on departure. Not a Day 1 strip.', type:'scenario', poh:'Bush ops', hint:'Approach hazard', img:'maseke_powerlines'},
       {id:'photo_elephant', q:'MASEKE — STRIP INSPECTION', front:'WHAT IS THIS AND WHAT DO YOU DO?', answer:'WILDLIFE ON STRIP · LOW PASS TO CLEAR · DO NOT LAND', sub:'Announce blind broadcast. Low pass at safe altitude. Wait for strip to clear. Reassess fuel.', type:'scenario', poh:'Bush ops', hint:'Wildlife hazard', img:'maseke_elephant'},
       // Scenario cards
-      {id:'sc_da', q:'SCENARIO: HOT AFTERNOON · FAHT
-DA 4300FT · MTOW 600KG', front:'T/O ROLL EXPECTATION?', answer:'110–130M MINIMUM', sub:'POH states 80m at ISA sea level. Turbo partially compensates engine but NOT aerodynamic performance. Factor for surface condition too.', type:'scenario', poh:'POH §5', hint:'Performance planning'},
-      {id:'sc_crosswind', q:'SCENARIO: LEFT CROSSWIND · MASEKE
-XWIND 14 KTS', front:'TECHNIQUE?', answer:'CRAB INTO WIND · WINDWARD SIDE LINEUP · LESS FLAP', sub:'Higher crosswind = less flap. Land on upwind main first. Stick forward on touchdown. Windward side lineup — drift toward centreline.', type:'scenario', poh:'POH §4', hint:'Crosswind landing'},
-      {id:'sc_fuel_low', q:'SCENARIO: MASEKE OPS · 2 HRS FLOWN
-HEADER LIGHT ILLUMINATES', front:'IMMEDIATE ACTIONS?', answer:'LEVEL WINGS → REDUCE POWER → CHECK VALVES OPEN → SELECT FULLEST TANK', sub:'Were you flying ball-right with only one tank open? This is the most likely cause. ~8 min remaining.', type:'scenario', poh:'POH §1', hint:'Fuel emergency'},
-      {id:'sc_groundloop', q:'SCENARIO: MASEKE TAKE-OFF
-SWING LEFT AT 30 KTS', front:'CORRECT RESPONSE IN ORDER?', answer:'RUDDER → BRAKE → THROTTLE (EXTREME CAUTION) → AILERON', sub:'135hp can REINFORCE a groundloop if throttle used aggressively. Use rudder and brake first. Throttle last resort only.', type:'scenario', poh:'Tailwheel notes', hint:'Groundloop prevention'},
-      {id:'sc_weather', q:'SCENARIO: 1345 HRS · JANUARY
-CB 25NM WEST · CLOUD BASE 3000FT', front:'GO OR NO-GO?', answer:'NO-GO', sub:'CB within 30nm = no-go. 1345 departure = return 1430 = peak convective activity. Decision made on ground or not at all.', type:'scenario', poh:'Personal minimums', hint:'Weather decision'},
-      {id:'sc_bounce', q:'SCENARIO: WHEEL LANDING · MASEKE
-AIRCRAFT BOUNCES ON TOUCHDOWN', front:'IMMEDIATE ACTION?', answer:'GO-AROUND · FULL POWER · PUSH FORWARD (TRIM WARNING)', sub:'Never try to salvage a bounced landing. Energy is wrong. WARNING: anticipate nose-up pitch if trimmed nose-up.', type:'scenario', poh:'POH §4', hint:'Bounced landing'},
-      {id:'sc_stall', q:'SCENARIO: 45° BANK TURN · 300FT AGL
-60 KTS · DISTRACTED BY SIGHTING', front:'STALL SPEED IN THIS BANK?', answer:'~45 KTS', sub:'45° bank = 1.41G = VS × 1.19 = 38 × 1.19 = 45 kts. Only 15 kts margin at 300ft AGL. This is how fatal accidents happen.', type:'scenario', poh:'POH §2.2', hint:'Stall in turn'},
-      {id:'sc_fatigue', q:'SCENARIO: 3 HRS SURVEILLANCE
-TIRED · ONE MORE TRANSECT REQUESTED', front:'YOUR DECISION?', answer:'LAND · MISSION CAN WAIT · FATIGUE KILLS', sub:'Fatigue impairs self-assessment. Decision-making degrades first — before you notice it. Pre-determined limits beat in-moment judgement every time.', type:'scenario', poh:'Good airmanship', hint:'Human factors'},
-      {id:'sc_maseke_depart', q:'MASEKE DEPARTURE · POWER LINES AHEAD
-VX SPEED?', front:'?', answer:'47 KTS · MAINTAIN UNTIL CLEAR', sub:'Best angle of climb. Do not chase VY until obstacles are cleared. This is exactly what VX is for.', type:'scenario', poh:'POH §2.2', hint:'Obstacle departure'},
+      {id:'sc_da', q:'SCENARIO: HOT AFTERNOON · FAHT · DA 4300FT · MTOW 600KG', front:'T/O ROLL EXPECTATION?', answer:'110–130M MINIMUM', sub:'POH states 80m at ISA sea level. Turbo partially compensates engine but NOT aerodynamic performance. Factor for surface condition too.', type:'scenario', poh:'POH §5', hint:'Performance planning'},
+      {id:'sc_crosswind', q:'SCENARIO: LEFT CROSSWIND · MASEKE · XWIND 14 KTS', front:'TECHNIQUE?', answer:'CRAB INTO WIND · WINDWARD SIDE LINEUP · LESS FLAP', sub:'Higher crosswind = less flap. Land on upwind main first. Stick forward on touchdown. Windward side lineup — drift toward centreline.', type:'scenario', poh:'POH §4', hint:'Crosswind landing'},
+      {id:'sc_fuel_low', q:'SCENARIO: MASEKE OPS · 2 HRS FLOWN · HEADER LIGHT ILLUMINATES', front:'IMMEDIATE ACTIONS?', answer:'LEVEL WINGS → REDUCE POWER → CHECK VALVES OPEN → SELECT FULLEST TANK', sub:'Were you flying ball-right with only one tank open? This is the most likely cause. ~8 min remaining.', type:'scenario', poh:'POH §1', hint:'Fuel emergency'},
+      {id:'sc_groundloop', q:'SCENARIO: MASEKE TAKE-OFF · SWING LEFT AT 30 KTS', front:'CORRECT RESPONSE IN ORDER?', answer:'RUDDER → BRAKE → THROTTLE (EXTREME CAUTION) → AILERON', sub:'135hp can REINFORCE a groundloop if throttle used aggressively. Use rudder and brake first. Throttle last resort only.', type:'scenario', poh:'Tailwheel notes', hint:'Groundloop prevention'},
+      {id:'sc_weather', q:'SCENARIO: 1345 HRS · JANUARY · CB 25NM WEST · CLOUD BASE 3000FT', front:'GO OR NO-GO?', answer:'NO-GO', sub:'CB within 30nm = no-go. 1345 departure = return 1430 = peak convective activity. Decision made on ground or not at all.', type:'scenario', poh:'Personal minimums', hint:'Weather decision'},
+      {id:'sc_bounce', q:'SCENARIO: WHEEL LANDING · MASEKE · AIRCRAFT BOUNCES ON TOUCHDOWN', front:'IMMEDIATE ACTION?', answer:'GO-AROUND · FULL POWER · PUSH FORWARD (TRIM WARNING)', sub:'Never try to salvage a bounced landing. Energy is wrong. WARNING: anticipate nose-up pitch if trimmed nose-up.', type:'scenario', poh:'POH §4', hint:'Bounced landing'},
+      {id:'sc_stall', q:'SCENARIO: 45° BANK TURN · 300FT AGL · 60 KTS · DISTRACTED BY SIGHTING', front:'STALL SPEED IN THIS BANK?', answer:'~45 KTS', sub:'45° bank = 1.41G = VS × 1.19 = 38 × 1.19 = 45 kts. Only 15 kts margin at 300ft AGL. This is how fatal accidents happen.', type:'scenario', poh:'POH §2.2', hint:'Stall in turn'},
+      {id:'sc_fatigue', q:'SCENARIO: 3 HRS SURVEILLANCE · TIRED · ONE MORE TRANSECT REQUESTED', front:'YOUR DECISION?', answer:'LAND · MISSION CAN WAIT · FATIGUE KILLS', sub:'Fatigue impairs self-assessment. Decision-making degrades first — before you notice it. Pre-determined limits beat in-moment judgement every time.', type:'scenario', poh:'Good airmanship', hint:'Human factors'},
+      {id:'sc_maseke_depart', q:'MASEKE DEPARTURE · POWER LINES AHEAD · VX SPEED?', front:'?', answer:'47 KTS · MAINTAIN UNTIL CLEAR', sub:'Best angle of climb. Do not chase VY until obstacles are cleared. This is exactly what VX is for.', type:'scenario', poh:'POH §2.2', hint:'Obstacle departure'},
       {id:'sc_suitabl', q:'BUSH STRIP ASSESSMENT', front:'SUITABL =', answer:'SURFACE · UNDERSHOOT · INTO WIND · TOUCHDOWN POINT · ADEQUATE LENGTH · BARRIERS · LANDING DIRECTION', sub:'Run this every strip, every time. Maseke: surface OK, power lines are the BARRIERS to plan for.', type:'scenario', poh:'Bush ops', hint:'Strip assessment'},
     ]
   }
